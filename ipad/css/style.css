@@ -262,14 +262,28 @@ html, body {
 }
 
 /* ============================================================
-   1. Clock Card
+   1. Clock Card (Expands down to the Weather Position)
    ============================================================ */
 .clock-card {
-  -webkit-box-flex: 0;
-  -webkit-flex: 0 0 auto;
-  flex: 0 0 auto;
-  padding: 16px 20px;
-  margin-bottom: 12px;
+  -webkit-box-flex: 1;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 24px 28px;
+  margin-bottom: 14px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  -webkit-box-align: start;
+  -webkit-align-items: flex-start;
+  align-items: flex-start;
 }
 
 .time-container {
@@ -283,37 +297,36 @@ html, body {
 
 .clock-display {
   font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, sans-serif;
-  font-size: 4.2rem;
+  font-size: 5.8rem;
   font-weight: 800;
   line-height: 0.95;
   letter-spacing: -0.04em;
   color: #ffffff;
-  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
 }
 
 .clock-period {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 2rem;
+  font-weight: 700;
   color: #ff9aa2;
-  margin-left: 10px;
+  margin-left: 14px;
   text-transform: uppercase;
 }
 
 .date-display {
-  font-size: 1.15rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.75);
-  margin-top: 6px;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 14px;
 }
 
 /* ============================================================
-   2. Weather Card (Bramley & Tadley)
+   2. Weather Card (Bramley & Tadley - Compact Bottom Position)
    ============================================================ */
 .weather-card {
-  -webkit-box-flex: 1;
-  -webkit-flex: 1 1 auto;
-  flex: 1 1 auto;
-  min-height: 0;
+  -webkit-box-flex: 0;
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
   padding: 16px 20px;
   display: -webkit-box;
   display: -webkit-flex;
@@ -322,9 +335,6 @@ html, body {
   -webkit-box-direction: normal;
   -webkit-flex-direction: column;
   flex-direction: column;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  justify-content: space-between;
 }
 
 .weather-header {
@@ -337,7 +347,7 @@ html, body {
   -webkit-box-pack: justify;
   -webkit-justify-content: space-between;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .location-badge {
