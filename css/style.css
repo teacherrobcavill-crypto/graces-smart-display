@@ -172,25 +172,6 @@ html, body {
   gap: 10px;
 }
 
-.top-shortcuts-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.top-shortcut-btn {
-  font-size: 1.2rem;
-  line-height: 1;
-}
-
-.top-shortcut-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-}
-
 .icon-btn {
   width: 42px;
   height: 42px;
@@ -258,7 +239,7 @@ body.immersive-mode .split-stack {
 /* 1. Clock Card */
 .clock-card {
   flex: 0 0 auto;
-  padding: 14px 20px;
+  padding: 16px 22px;
 }
 
 .time-container {
@@ -269,7 +250,7 @@ body.immersive-mode .split-stack {
 
 .clock-display {
   font-family: var(--font-display);
-  font-size: 4.2rem;
+  font-size: 4.8rem;
   font-weight: 800;
   line-height: 0.95;
   letter-spacing: -0.04em;
@@ -580,33 +561,6 @@ body.night-mode-active .night-mode-overlay {
   margin-top: 24px;
 }
 
-.night-exit-btn {
-  margin-top: 28px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-full);
-  color: rgba(255, 255, 255, 0.85);
-  font-family: var(--font-main);
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  transition: all 0.2s ease;
-  pointer-events: auto;
-}
-
-.night-exit-btn:hover, .night-exit-btn:active {
-  background: rgba(255, 255, 255, 0.22);
-  color: #ffffff;
-  border-color: #ffffff;
-  transform: scale(1.04);
-}
-
 /* ============================================================
    Settings Modal Dialog
    ============================================================ */
@@ -751,110 +705,4 @@ body.night-mode-active .night-mode-overlay {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   justify-content: flex-end;
-}
-
-/* Shortcuts Editor in Settings */
-.settings-shortcut-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: 200px;
-  overflow-y: auto;
-  padding-right: 4px;
-}
-
-.shortcut-edit-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.04);
-  padding: 8px 10px;
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  flex-wrap: wrap;
-}
-
-.shortcut-edit-row .icon-input {
-  width: 44px;
-  text-align: center;
-  font-size: 1.1rem;
-}
-
-.shortcut-edit-row .title-input {
-  flex: 1;
-  min-width: 90px;
-}
-
-.shortcut-edit-row .sub-input {
-  flex: 1;
-  min-width: 90px;
-}
-
-.shortcut-edit-row .action-select {
-  flex: 1.2;
-  min-width: 140px;
-}
-
-.shortcut-edit-row .url-input {
-  flex: 2;
-  min-width: 160px;
-}
-
-.remove-item-btn {
-  background: none;
-  border: none;
-  color: #ff6b6b;
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 0 6px;
-  line-height: 1;
-}
-
-.remove-item-btn:hover {
-  color: #ff4757;
-}
-
-.btn-secondary {
-  padding: 8px 14px;
-  border-radius: var(--radius-sm);
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-primary);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  transition: all 0.2s ease;
-  align-self: flex-start;
-  margin-top: 6px;
-}
-
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.14);
-}
-
-/* Toast Notification */
-.toast-notification {
-  position: fixed;
-  top: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-20px);
-  background: rgba(25, 22, 41, 0.92);
-  border: 1px solid var(--accent-color);
-  color: #ffffff;
-  padding: 10px 22px;
-  border-radius: var(--radius-full);
-  font-size: 0.88rem;
-  font-weight: 600;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  z-index: 99999;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.toast-notification.is-visible {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
 }

@@ -29,10 +29,7 @@
       </div>
       
       <div class="status-controls">
-        <!-- Embedded Shortcuts Next to the Moon -->
-        <div class="top-shortcuts-group" id="topShortcutsContainer"></div>
-
-        <button class="icon-btn" id="nightModeBtn" type="button" aria-label="Toggle Night Mode" title="Bedtime Night Mode (Full Screen)">
+        <button class="icon-btn" id="nightModeBtn" type="button" aria-label="Toggle Night Mode" title="Bedtime Night Mode">
           <svg class="icon" viewBox="0 0 24 24" width="22" height="22">
             <path fill="currentColor" d="M12.3 2a10 10 0 0 0-.19 20 10 10 0 0 0 8.7-5.06 1 1 0 0 0-1-1.47 8 8 0 1 1-7.5-13.47 1 1 0 0 0-.01-2z"/>
           </svg>
@@ -122,16 +119,9 @@
       <div class="night-clock-container">
         <div class="night-clock" id="nightClock">12:00</div>
         <div class="night-date" id="nightDate">Wednesday, 28 October</div>
-        <div class="night-ambient-hint">Tap anywhere to return to split view ☀️</div>
-        <button class="night-exit-btn" id="nightExitBtn" type="button">
-          <span>☀️</span> Return to Split View
-        </button>
+        <div class="night-ambient-hint">Tap anywhere to wake display</div>
       </div>
     </div>
-
-    <!-- Hidden Canvas & Media Element for Full-Screen Bedtime Engine -->
-    <canvas id="nightCanvas" width="1920" height="1200" style="display: none;"></canvas>
-    <video id="nightModeVideo" style="position: fixed; top: 0; left: 0; width: 1px; height: 1px; opacity: 0.001; pointer-events: none;" playsinline webkit-playsinline muted></video>
 
     <!-- Settings Modal -->
     <div class="modal-backdrop" id="settingsModal">
@@ -178,15 +168,6 @@
             <label for="setting24Hour">Use 24-Hour Clock</label>
             <input type="checkbox" id="setting24Hour" class="toggle-switch">
           </div>
-
-          <!-- Shortcuts Configuration -->
-          <div class="form-group">
-            <label>Manage Webpage Shortcuts</label>
-            <div id="settingsShortcutList" class="settings-shortcut-list">
-              <!-- Rendered dynamically -->
-            </div>
-            <button type="button" class="btn-secondary" id="addShortcutBtn">+ Add Custom Shortcut</button>
-          </div>
         </div>
 
         <div class="modal-footer">
@@ -202,7 +183,6 @@
   <script src="js/weather.js"></script>
   <script src="js/calendar.js"></script>
   <script src="js/settings.js"></script>
-  <script src="js/shortcuts.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
