@@ -27,31 +27,54 @@ document.addEventListener('DOMContentLoaded', () => {
     CalendarManager.init();
   }
 
-  // 6. Initialize Settings Modal
+  // 6. Initialize Quick Action Shortcuts
+  if (typeof ShortcutsManager !== 'undefined') {
+    ShortcutsManager.init();
+  }
+
+  // 7. Initialize Settings Modal
   SettingsManager.initModal();
 
-  // 7. Setup Night Mode Controls
+  // 8. Setup Night Mode Controls
   const nightModeBtn = document.getElementById('nightModeBtn');
   const nightOverlay = document.getElementById('nightModeOverlay');
+  const nightExitBtn = document.getElementById('nightExitBtn');
 
   if (nightModeBtn) {
-    nightModeBtn.addEventListener('click', () => {
-      document.body.classList.toggle('night-mode-active');
+    nightModeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (document.body.classList.contains('night-mode-active')) {
+        exitNightMode(true);
+      } else {
+        showToast('Entering Bedtime Mode (Full Screen) 🌙');
+        enterNightMode(true);
+      }
     });
   }
 
-  // Tapping the night screen temporarily wakes it up for 25 seconds
+  // Exit button inside the night mode overlay
+  if (nightExitBtn) {
+    nightExitBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      exitNightMode(true);
+      showToast('Woke display - returned to split view ☀️');
+    });
+  }
+
+  // Tapping anywhere on night screen temporarily wakes it up for 30 seconds
   if (nightOverlay) {
-    nightOverlay.addEventListener('click', () => {
+    nightOverlay.addEventListener('click', (e) => {
+      if (e.target.closest('#nightExitBtn')) return;
       ClockManager.dismissNightModeTemporarily();
+      showToast('Waking screen for 30s ⏰');
       setTimeout(() => {
         const now = new Date();
         ClockManager.checkNightSchedule(now.getHours(), now.getMinutes());
-      }, 25000);
+      }, 30000);
     });
   }
 
-  // 8. Fullscreen Toggle (Cross-Browser + Split-Screen Fallback)
+  // 9. Fullscreen Toggle (Cross-Browser + Split-Screen Fallback)
   const fullscreenBtn = document.getElementById('fullscreenBtn');
   if (fullscreenBtn) {
     fullscreenBtn.addEventListener('click', (e) => {
@@ -80,60 +103,97 @@ function isFullscreen() {
 }
 
 /**
+ * Request Native Fullscreen with One UI / Split-Screen Fallback
+ */
+function requestFullscreenHelper() {
+  const docEl = document.documentElement;
+  const requestFs =
+    docEl.requestFullscreen ||
+    docEl.webkitRequestFullscreen ||
+    docEl.webkitRequestFullScreen ||
+    docEl.mozRequestFullScreen ||
+    docEl.msRequestFullscreen;
+
+  if (requestFs) {
+    try {
+      const p = requestFs.call(docEl);
+      if (p && p.catch) {
+        p.catch((err) => {
+          console.debug('Native fullscreen fallback:', err.message);
+          document.body.classList.add('immersive-mode');
+        });
+      }
+    } catch (err) {
+      document.body.classList.add('immersive-mode');
+    }
+  } else {
+    document.body.classList.add('immersive-mode');
+  }
+}
+
+/**
+ * Exit Fullscreen
+ */
+function exitFullscreenHelper() {
+  const exitFs =
+    document.exitFullscreen ||
+    document.webkitExitFullscreen ||
+    document.mozCancelFullScreen ||
+    document.msExitFullscreen;
+
+  if (exitFs && (document.fullscreenElement || document.webkitFullscreenElement)) {
+    try {
+      exitFs.call(document);
+    } catch (err) {
+      console.debug('Exit fullscreen error:', err);
+    }
+  }
+  document.body.classList.remove('immersive-mode');
+}
+
+/**
  * Robust Cross-Browser Fullscreen with Split-Screen Fallback
  */
 function toggleFullscreen() {
-  const docEl = document.documentElement;
-  const isFs = isFullscreen();
-
-  if (!isFs) {
-    const requestFs =
-      docEl.requestFullscreen ||
-      docEl.webkitRequestFullscreen ||
-      docEl.webkitRequestFullScreen ||
-      docEl.mozRequestFullScreen ||
-      docEl.msRequestFullscreen;
-
-    if (requestFs) {
-      try {
-        const p = requestFs.call(docEl);
-        if (p && p.catch) {
-          p.catch((err) => {
-            console.debug('Native fullscreen disallowed in split-screen mode, activating immersive layout:', err.message);
-            toggleImmersiveFallback();
-          });
-        }
-      } catch (err) {
-        toggleImmersiveFallback();
-      }
-    } else {
-      toggleImmersiveFallback();
-    }
+  if (!isFullscreen()) {
+    requestFullscreenHelper();
   } else {
-    const exitFs =
-      document.exitFullscreen ||
-      document.webkitExitFullscreen ||
-      document.mozCancelFullScreen ||
-      document.msExitFullscreen;
-
-    if (exitFs && (document.fullscreenElement || document.webkitFullscreenElement)) {
-      try {
-        exitFs.call(document);
-      } catch (err) {
-        console.debug('Exit fullscreen error:', err);
-      }
-    }
-    document.body.classList.remove('immersive-mode');
+    exitFullscreenHelper();
   }
+  updateFullscreenIcon();
+}
+
+/**
+ * Enter Nighttime Mode (optionally requesting full screen)
+ */
+function enterNightMode(goFullscreen = true) {
+  document.body.classList.add('night-mode-active');
+  ClockManager._userDismissedNightMode = false;
+
+  if (goFullscreen && !isFullscreen()) {
+    requestFullscreenHelper();
+  }
+
+  const nightBtn = document.getElementById('nightModeBtn');
+  if (nightBtn) nightBtn.classList.add('active');
 
   updateFullscreenIcon();
 }
 
 /**
- * Immersive fallback for Samsung One UI Split-Screen mode
+ * Exit Nighttime Mode (optionally leaving full screen to restore split view)
  */
-function toggleImmersiveFallback() {
-  document.body.classList.toggle('immersive-mode');
+function exitNightMode(leaveFullscreen = true) {
+  document.body.classList.remove('night-mode-active');
+  ClockManager._userDismissedNightMode = true;
+
+  if (leaveFullscreen && isFullscreen()) {
+    exitFullscreenHelper();
+  }
+
+  const nightBtn = document.getElementById('nightModeBtn');
+  if (nightBtn) nightBtn.classList.remove('active');
+
   updateFullscreenIcon();
 }
 
@@ -151,7 +211,7 @@ function updateFullscreenIcon() {
         <path fill="currentColor" d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>
       </svg>
     `;
-    btn.setAttribute('title', 'Exit Fullscreen');
+    btn.setAttribute('title', 'Exit Fullscreen (Return to Split View)');
     btn.classList.add('active');
   } else {
     btn.innerHTML = `
@@ -162,4 +222,25 @@ function updateFullscreenIcon() {
     btn.setAttribute('title', 'Fullscreen Mode');
     btn.classList.remove('active');
   }
+}
+
+/**
+ * Floating Aesthetic Toast Notification
+ */
+function showToast(message) {
+  let toast = document.getElementById('toastNotification');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toastNotification';
+    toast.className = 'toast-notification';
+    document.body.appendChild(toast);
+  }
+
+  toast.textContent = message;
+  toast.classList.add('is-visible');
+
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => {
+    toast.classList.remove('is-visible');
+  }, 2200);
 }

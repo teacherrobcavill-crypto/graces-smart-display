@@ -29,7 +29,7 @@
       </div>
       
       <div class="status-controls">
-        <button class="icon-btn" id="nightModeBtn" type="button" aria-label="Toggle Night Mode" title="Bedtime Night Mode">
+        <button class="icon-btn" id="nightModeBtn" type="button" aria-label="Toggle Night Mode" title="Bedtime Night Mode (Full Screen)">
           <svg class="icon" viewBox="0 0 24 24" width="22" height="22">
             <path fill="currentColor" d="M12.3 2a10 10 0 0 0-.19 20 10 10 0 0 0 8.7-5.06 1 1 0 0 0-1-1.47 8 8 0 1 1-7.5-13.47 1 1 0 0 0-.01-2z"/>
           </svg>
@@ -98,7 +98,21 @@
         </div>
       </section>
 
-      <!-- 3. Apple Family Calendar Card (Spacious, Full Height) -->
+      <!-- 3. Quick Action Shortcuts Card -->
+      <section class="grid-card shortcuts-card" id="shortcutsCard">
+        <div class="shortcuts-header">
+          <div class="shortcuts-title-wrap">
+            <span class="shortcuts-icon">⚡</span>
+            <span class="shortcuts-title">Quick Shortcuts</span>
+          </div>
+          <span class="shortcuts-badge">One-Tap</span>
+        </div>
+        <div class="shortcuts-grid" id="shortcutsGrid">
+          <!-- Rendered dynamically by ShortcutsManager -->
+        </div>
+      </section>
+
+      <!-- 4. Apple Family Calendar Card (Spacious, Full Height) -->
       <section class="grid-card calendar-card" id="calendarCard">
         <div class="calendar-header">
           <div class="calendar-title-wrap">
@@ -120,6 +134,9 @@
         <div class="night-clock" id="nightClock">12:00</div>
         <div class="night-date" id="nightDate">Wednesday, 28 October</div>
         <div class="night-ambient-hint">Tap anywhere to wake display</div>
+        <button class="night-exit-btn" id="nightExitBtn" type="button">
+          <span>☀️</span> Wake & Return to Split View
+        </button>
       </div>
     </div>
 
@@ -168,6 +185,15 @@
             <label for="setting24Hour">Use 24-Hour Clock</label>
             <input type="checkbox" id="setting24Hour" class="toggle-switch">
           </div>
+
+          <!-- Shortcuts Configuration -->
+          <div class="form-group">
+            <label>Manage Webpage Shortcuts</label>
+            <div id="settingsShortcutList" class="settings-shortcut-list">
+              <!-- Rendered dynamically -->
+            </div>
+            <button type="button" class="btn-secondary" id="addShortcutBtn">+ Add Custom Shortcut</button>
+          </div>
         </div>
 
         <div class="modal-footer">
@@ -183,6 +209,7 @@
   <script src="js/weather.js"></script>
   <script src="js/calendar.js"></script>
   <script src="js/settings.js"></script>
+  <script src="js/shortcuts.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
