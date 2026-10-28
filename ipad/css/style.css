@@ -1,195 +1,158 @@
 /* ============================================================
-   Rob's iPad Smart Display (4:3 / Landscape Fullscreen)
+   Rob's iPad Smart Display (iOS 9.3.5 / Safari 9 Compatible)
+   Strict ES5 / Legacy WebKit CSS (No CSS Variables, No Flex Gap)
    ============================================================ */
 
-:root {
-  --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  --font-display: 'Outfit', var(--font-main);
-  
-  /* Default Theme: Pastel Sunset */
-  --bg-gradient: radial-gradient(circle at 15% 20%, rgba(255, 154, 162, 0.22) 0%, transparent 45%),
-                 radial-gradient(circle at 85% 80%, rgba(255, 218, 193, 0.25) 0%, transparent 45%),
-                 linear-gradient(135deg, #181528 0%, #0d0a1a 100%);
-  --card-bg: rgba(255, 255, 255, 0.07);
-  --card-border: rgba(255, 255, 255, 0.12);
-  --card-hover: rgba(255, 255, 255, 0.12);
-  --accent-color: #ff9aa2;
-  --accent-glow: rgba(255, 154, 162, 0.35);
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.75);
-  --text-muted: rgba(255, 255, 255, 0.45);
-  --apple-cal-color: #FF9500;
-  --night-color: #ff9d42;
-  
-  --radius-lg: 24px;
-  --radius-md: 16px;
-  --radius-sm: 10px;
-  --radius-full: 9999px;
-  
-  --shadow-card: 0 16px 36px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-  --blur-glass: blur(28px);
-}
-
-/* Theme: Cosmic Galaxy */
-[data-theme="cosmic-galaxy"] {
-  --bg-gradient: radial-gradient(circle at 10% 15%, rgba(138, 43, 226, 0.28) 0%, transparent 50%),
-                 radial-gradient(circle at 90% 85%, rgba(0, 202, 255, 0.25) 0%, transparent 50%),
-                 linear-gradient(135deg, #09081a 0%, #020208 100%);
-  --accent-color: #a78bfa;
-  --accent-glow: rgba(167, 139, 250, 0.4);
-}
-
-/* Theme: Lofi Chill */
-[data-theme="lofi-chill"] {
-  --bg-gradient: radial-gradient(circle at 20% 30%, rgba(244, 114, 182, 0.22) 0%, transparent 45%),
-                 radial-gradient(circle at 80% 70%, rgba(96, 165, 250, 0.22) 0%, transparent 45%),
-                 linear-gradient(135deg, #1e1b2e 0%, #12101e 100%);
-  --accent-color: #f472b6;
-  --accent-glow: rgba(244, 114, 182, 0.35);
-}
-
-/* Theme: Emerald Forest */
-[data-theme="emerald-forest"] {
-  --bg-gradient: radial-gradient(circle at 15% 25%, rgba(52, 211, 153, 0.2) 0%, transparent 45%),
-                 radial-gradient(circle at 85% 75%, rgba(16, 185, 129, 0.18) 0%, transparent 45%),
-                 linear-gradient(135deg, #0a1f18 0%, #040d0a 100%);
-  --accent-color: #34d399;
-  --accent-glow: rgba(52, 211, 153, 0.35);
-}
-
-/* Theme: Minimal Dark */
-[data-theme="minimal-dark"] {
-  --bg-gradient: linear-gradient(180deg, #0c0d10 0%, #000000 100%);
-  --card-bg: rgba(255, 255, 255, 0.04);
-  --card-border: rgba(255, 255, 255, 0.08);
-  --accent-color: #e2e8f0;
-  --accent-glow: rgba(255, 255, 255, 0.15);
-}
-
-/* Reset */
+/* CSS Reset */
 *, *::before, *::after {
+  -webkit-box-sizing: border-box;
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-user-select: none;
   user-select: none;
 }
 
 html, body {
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  background-color: #0d0a1a;
-  font-family: var(--font-main);
-  color: var(--text-primary);
-  touch-action: manipulation;
-}
-
-/* iPad Safe Area Support */
-.dashboard-container.ipad-display {
-  position: relative;
   width: 100%;
   height: 100%;
-  padding: 24px 32px;
-  padding-top: max(24px, env(safe-area-inset-top));
-  padding-bottom: max(24px, env(safe-area-inset-bottom));
-  padding-left: max(32px, env(safe-area-inset-left));
-  padding-right: max(32px, env(safe-area-inset-right));
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
+  background-color: #0d0a1a;
+  background: #0d0a1a;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Backdrops */
+/* Background Gradients */
 .background-backdrop {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: var(--bg-gradient);
+  background: -webkit-radial-gradient(15% 20%, circle, rgba(255, 154, 162, 0.22) 0%, transparent 45%),
+              -webkit-radial-gradient(85% 80%, circle, rgba(255, 218, 193, 0.25) 0%, transparent 45%),
+              -webkit-linear-gradient(135deg, #181528 0%, #0d0a1a 100%);
+  background: radial-gradient(circle at 15% 20%, rgba(255, 154, 162, 0.22) 0%, transparent 45%),
+              radial-gradient(circle at 85% 80%, rgba(255, 218, 193, 0.25) 0%, transparent 45%),
+              linear-gradient(135deg, #181528 0%, #0d0a1a 100%);
   z-index: 0;
-  transition: background 0.8s ease;
   pointer-events: none;
 }
 
 .ambient-glow {
   position: absolute;
   border-radius: 50%;
-  filter: blur(110px);
   pointer-events: none;
   z-index: 0;
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 .glow-1 {
-  width: 500px;
-  height: 500px;
-  top: -100px;
-  left: -100px;
-  background: var(--accent-glow);
+  width: 450px;
+  height: 450px;
+  top: -120px;
+  left: -120px;
+  background: -webkit-radial-gradient(center, circle, rgba(255, 154, 162, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(255, 154, 162, 0.3) 0%, transparent 70%);
 }
 
 .glow-2 {
-  width: 500px;
-  height: 500px;
-  bottom: -100px;
-  right: -100px;
-  background: rgba(255, 149, 0, 0.16);
+  width: 450px;
+  height: 450px;
+  bottom: -120px;
+  right: -120px;
+  background: -webkit-radial-gradient(center, circle, rgba(255, 149, 0, 0.2) 0%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(255, 149, 0, 0.2) 0%, transparent 70%);
+}
+
+/* Dashboard Container */
+.dashboard-container.ipad-display {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 16px 20px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* Top Bar */
 .top-bar {
   position: relative;
   z-index: 10;
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
   justify-content: space-between;
-  height: 52px;
-  margin-bottom: 18px;
+  height: 46px;
+  margin-bottom: 12px;
+  -webkit-flex-shrink: 0;
   flex-shrink: 0;
 }
 
 .greeting-wrapper {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
   align-items: center;
-  gap: 12px;
 }
 
 .greeting-emoji {
   font-size: 1.8rem;
-  filter: drop-shadow(0 2px 8px var(--accent-glow));
+  margin-right: 12px;
 }
 
 .greeting-text {
-  font-family: var(--font-display);
-  font-size: 1.75rem;
+  font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, sans-serif;
+  font-size: 1.7rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #ffffff 40%, var(--accent-color) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #ffffff;
 }
 
 .status-controls {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
   align-items: center;
-  gap: 12px;
+}
+
+.status-controls > * {
+  margin-left: 10px;
 }
 
 .status-pill {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  backdrop-filter: var(--blur-glass);
-  -webkit-backdrop-filter: var(--blur-glass);
-  border-radius: var(--radius-full);
-  font-size: 0.85rem;
+  padding: 7px 14px;
+  background: #1b172c;
+  background: rgba(27, 23, 44, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  font-size: 0.82rem;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .pulse-dot-green {
@@ -197,7 +160,15 @@ html, body {
   height: 8px;
   background-color: #34d399;
   border-radius: 50%;
+  margin-right: 8px;
+  -webkit-animation: pulse-ring 2s infinite ease-in-out;
   animation: pulse-ring 2s infinite ease-in-out;
+}
+
+@-webkit-keyframes pulse-ring {
+  0% { -webkit-transform: scale(0.95); opacity: 0.7; }
+  50% { -webkit-transform: scale(1.2); opacity: 1; }
+  100% { -webkit-transform: scale(0.95); opacity: 0.7; }
 }
 
 @keyframes pulse-ring {
@@ -207,31 +178,37 @@ html, body {
 }
 
 .icon-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-full);
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  backdrop-filter: var(--blur-glass);
-  -webkit-backdrop-filter: var(--blur-glass);
-  color: var(--text-primary);
+  width: 42px;
+  height: 42px;
+  border-radius: 9999px;
+  background: #1b172c;
+  background: rgba(27, 23, 44, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.icon-btn:hover, .icon-btn:active {
-  background: var(--card-hover);
-  transform: scale(1.05);
-  border-color: var(--accent-color);
+.icon-btn:active {
+  background: rgba(255, 255, 255, 0.2);
 }
 
-/* iPad 2-Column Layout (Legacy iOS / 4:3 Landscape Compatible) */
+/* ============================================================
+   iPad 2-Column Grid Layout (Landscape 4:3)
+   ============================================================ */
 .ipad-grid {
   position: relative;
   z-index: 10;
+  width: 100%;
+  height: calc(100% - 58px);
   display: -webkit-box;
   display: -webkit-flex;
   display: flex;
@@ -239,9 +216,6 @@ html, body {
   -webkit-box-direction: normal;
   -webkit-flex-direction: row;
   flex-direction: row;
-  gap: 16px;
-  width: 100%;
-  height: calc(100% - 66px);
   overflow: hidden;
 }
 
@@ -250,6 +224,7 @@ html, body {
   -webkit-flex: 0 0 45%;
   flex: 0 0 45%;
   width: 45%;
+  margin-right: 14px;
   display: -webkit-box;
   display: -webkit-flex;
   display: flex;
@@ -257,7 +232,6 @@ html, body {
   -webkit-box-direction: normal;
   -webkit-flex-direction: column;
   flex-direction: column;
-  gap: 14px;
   height: 100%;
 }
 
@@ -265,7 +239,7 @@ html, body {
   -webkit-box-flex: 1;
   -webkit-flex: 1 1 auto;
   flex: 1 1 auto;
-  width: 53%;
+  width: calc(55% - 14px);
   display: -webkit-box;
   display: -webkit-flex;
   display: flex;
@@ -277,130 +251,184 @@ html, body {
   overflow: hidden;
 }
 
-/* Glassmorphism Cards */
+/* Card Foundations (Solid Translucent for iOS 9 Smoothness) */
 .grid-card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  backdrop-filter: var(--blur-glass);
-  -webkit-backdrop-filter: var(--blur-glass);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
+  background: #191629;
+  background: rgba(25, 22, 41, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   position: relative;
 }
 
-/* 1. Clock Card */
+/* ============================================================
+   1. Clock Card
+   ============================================================ */
 .clock-card {
+  -webkit-box-flex: 0;
+  -webkit-flex: 0 0 auto;
   flex: 0 0 auto;
   padding: 16px 20px;
+  margin-bottom: 12px;
 }
 
 .time-container {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-align: baseline;
+  -webkit-align-items: baseline;
   align-items: baseline;
-  gap: 10px;
 }
 
 .clock-display {
-  font-family: var(--font-display);
+  font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, sans-serif;
   font-size: 4.2rem;
   font-weight: 800;
   line-height: 0.95;
   letter-spacing: -0.04em;
-  text-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  color: #ffffff;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 .clock-period {
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--accent-color);
+  color: #ff9aa2;
+  margin-left: 10px;
   text-transform: uppercase;
 }
 
 .date-display {
   font-size: 1.15rem;
   font-weight: 500;
-  color: var(--text-secondary);
-  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.75);
+  margin-top: 6px;
 }
 
-/* 2. Weather Card (Bramley & Tadley) */
+/* ============================================================
+   2. Weather Card (Bramley & Tadley)
+   ============================================================ */
 .weather-card {
-  flex: 1;
+  -webkit-box-flex: 1;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
   min-height: 0;
-  padding: 14px 18px;
+  padding: 16px 20px;
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
   flex-direction: column;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
   justify-content: space-between;
 }
 
 .weather-header {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
   justify-content: space-between;
   margin-bottom: 10px;
 }
 
 .location-badge {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
   align-items: center;
-  gap: 6px;
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 600;
-  color: var(--accent-color);
+  color: #ff9aa2;
+}
+
+.location-badge .pin-icon {
+  margin-right: 6px;
 }
 
 .weather-updated {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .weather-body {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
   justify-content: space-between;
 }
 
 .weather-main-info {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
   align-items: center;
-  gap: 16px;
 }
 
 .weather-icon-large {
   font-size: 3.2rem;
-  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+  margin-right: 14px;
 }
 
 .current-temp {
-  font-family: var(--font-display);
-  font-size: 3rem;
+  font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, sans-serif;
+  font-size: 3.2rem;
   font-weight: 700;
   line-height: 1;
+  color: #ffffff;
 }
 
 .weather-condition {
   display: block;
   font-size: 0.95rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.75);
   margin-top: 3px;
 }
 
 .weather-stats {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
-  gap: 20px;
-  border-left: 1px solid var(--card-border);
-  padding-left: 20px;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  padding-left: 16px;
 }
 
 .stat-item {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
   flex-direction: column;
+  margin-left: 16px;
+}
+
+.stat-item:first-child {
+  margin-left: 0;
 }
 
 .stat-label {
   font-size: 0.72rem;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.45);
   text-transform: uppercase;
   margin-bottom: 2px;
 }
@@ -408,106 +436,128 @@ html, body {
 .stat-value {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #ffffff;
 }
 
-/* 3. Apple Family Calendar Card (Spacious, Full Height) */
+/* ============================================================
+   3. Apple Family Calendar Card (Right Column)
+   ============================================================ */
 .calendar-card {
-  flex: 1;
+  -webkit-box-flex: 1;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+  height: 100%;
   min-height: 0;
-  padding: 22px 26px;
+  padding: 18px 22px;
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
   flex-direction: column;
-  border-top: 4px solid var(--apple-cal-color);
+  border-top: 4px solid #ff9500;
   overflow: hidden;
 }
 
 .calendar-header {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
+  -webkit-flex-shrink: 0;
   flex-shrink: 0;
 }
 
 .calendar-title-wrap {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-align: baseline;
+  -webkit-align-items: baseline;
   align-items: baseline;
-  gap: 10px;
 }
 
 .apple-cal-icon {
   font-size: 1.25rem;
+  margin-right: 8px;
 }
 
 .calendar-title {
-  font-family: var(--font-display);
+  font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, sans-serif;
   font-size: 1.25rem;
   font-weight: 700;
   color: #ffffff;
+  margin-right: 10px;
 }
 
 .calendar-account {
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .calendar-badge-live {
   font-size: 0.72rem;
   font-weight: 700;
-  color: var(--apple-cal-color);
+  color: #ff9500;
   background: rgba(255, 149, 0, 0.15);
   border: 1px solid rgba(255, 149, 0, 0.35);
   padding: 3px 10px;
-  border-radius: var(--radius-full);
+  border-radius: 9999px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .calendar-events-list {
-  flex: 1;
+  -webkit-box-flex: 1;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding-right: 6px;
-}
-
-.calendar-events-list::-webkit-scrollbar {
-  width: 5px;
-}
-
-.calendar-events-list::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  -webkit-overflow-scrolling: touch;
+  padding-right: 4px;
 }
 
 .calendar-loading, .no-events-msg {
   font-size: 0.95rem;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.45);
   text-align: center;
   padding: 40px 0;
 }
 
 .calendar-event-item {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
   align-items: center;
-  gap: 16px;
-  padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: var(--radius-sm);
-  border-left: 4px solid var(--apple-cal-color);
-  transition: background 0.2s ease;
+  padding: 11px 14px;
+  margin-bottom: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border-left: 4px solid #ff9500;
 }
 
-.calendar-event-item:hover {
-  background: rgba(255, 255, 255, 0.08);
+.calendar-event-item:active {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .event-date-col {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
   flex-direction: column;
-  min-width: 80px;
+  min-width: 82px;
+  margin-right: 14px;
 }
 
 .event-badge {
@@ -516,7 +566,7 @@ html, body {
 }
 
 .badge-today {
-  color: var(--apple-cal-color);
+  color: #ff9500;
   text-shadow: 0 0 10px rgba(255, 149, 0, 0.5);
 }
 
@@ -525,22 +575,24 @@ html, body {
 }
 
 .badge-upcoming {
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .event-time {
   font-size: 0.74rem;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.45);
   margin-top: 2px;
 }
 
 .event-info-col {
-  flex: 1;
+  -webkit-box-flex: 1;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
   min-width: 0;
 }
 
 .event-title {
-  font-size: 1rem;
+  font-size: 0.96rem;
   font-weight: 600;
   color: #ffffff;
   white-space: nowrap;
@@ -549,9 +601,12 @@ html, body {
 }
 
 .event-location {
-  font-size: 0.78rem;
-  color: var(--text-muted);
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.45);
   margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ============================================================
@@ -561,59 +616,61 @@ html, body {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   background-color: #000000;
   z-index: 100;
   display: none;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
   justify-content: center;
   opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease;
 }
 
 body.night-mode-active .night-mode-overlay {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
   opacity: 1;
-  pointer-events: auto;
 }
 
 .night-clock-container {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
   flex-direction: column;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
   align-items: center;
   text-align: center;
   cursor: pointer;
-  animation: float-night 60s infinite alternate ease-in-out;
-}
-
-@keyframes float-night {
-  0% { transform: translate(-10px, -5px); }
-  50% { transform: translate(15px, 10px); }
-  100% { transform: translate(-15px, 8px); }
 }
 
 .night-clock {
-  font-family: var(--font-display);
-  font-size: 8rem;
+  font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, sans-serif;
+  font-size: 7.5rem;
   font-weight: 800;
-  color: var(--night-color);
-  opacity: 0.5;
+  color: #ff9d42;
+  opacity: 0.55;
   letter-spacing: -0.04em;
-  text-shadow: 0 0 40px rgba(255, 157, 66, 0.25);
 }
 
 .night-date {
-  font-size: 1.6rem;
-  color: var(--night-color);
-  opacity: 0.38;
+  font-size: 1.5rem;
+  color: #ff9d42;
+  opacity: 0.4;
   margin-top: 8px;
 }
 
 .night-ambient-hint {
   font-size: 0.9rem;
-  color: rgba(255, 157, 66, 0.3);
+  color: rgba(255, 157, 66, 0.35);
   margin-top: 24px;
 }
 
@@ -624,56 +681,69 @@ body.night-mode-active .night-mode-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
   z-index: 200;
   display: none;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
   justify-content: center;
   opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease;
 }
 
 .modal-backdrop.is-open {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
   opacity: 1;
-  pointer-events: auto;
 }
 
 .settings-dialog {
   background: #191629;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: var(--radius-lg);
+  border-radius: 16px;
   width: 90%;
   max-width: 520px;
-  max-height: 85vh;
+  max-height: 85%;
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
   flex-direction: column;
   box-shadow: 0 24px 60px rgba(0,0,0,0.6);
   overflow: hidden;
 }
 
 .modal-header {
-  padding: 20px 24px;
+  padding: 18px 24px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
   justify-content: space-between;
 }
 
 .modal-header h2 {
   font-size: 1.35rem;
   font-weight: 700;
+  color: #ffffff;
 }
 
 .close-btn {
   background: none;
   border: none;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 1.8rem;
   cursor: pointer;
   line-height: 1;
@@ -682,90 +752,156 @@ body.night-mode-active .night-mode-overlay {
 .modal-body {
   padding: 20px 24px;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  margin-bottom: 14px;
 }
 
 .form-row {
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
-  gap: 12px;
 }
 
 .form-group.half {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1;
   flex: 1;
 }
 
+.form-group.half:first-child {
+  margin-right: 12px;
+}
+
 .form-group label {
+  display: block;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 6px;
 }
 
 .form-group input[type="text"],
 .form-group input[type="number"],
 .form-group select {
+  width: 100%;
   padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: var(--radius-sm);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  color: #ffffff;
   font-family: inherit;
   font-size: 0.95rem;
   outline: none;
-}
-
-.form-group input:focus, .form-group select:focus {
-  border-color: var(--accent-color);
+  box-sizing: border-box;
 }
 
 .toggle-group {
-  flex-direction: row;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
   align-items: center;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
   justify-content: space-between;
-  flex-wrap: wrap;
+}
+
+.toggle-group label {
+  margin-bottom: 0;
 }
 
 .toggle-switch {
   width: 44px;
   height: 24px;
-  accent-color: var(--accent-color);
   cursor: pointer;
 }
 
 .helper-text {
+  display: block;
   width: 100%;
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.45);
   margin-top: 4px;
 }
 
 .btn-primary {
-  padding: 12px 20px;
-  border-radius: var(--radius-md);
+  padding: 12px 22px;
+  border-radius: 12px;
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
-  background: var(--accent-color);
+  background: #ff9aa2;
   color: #12101e;
   border: none;
-  transition: all 0.2s ease;
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
 }
 
 .modal-footer {
   padding: 16px 24px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: -webkit-box;
+  display: -webkit-flex;
   display: flex;
+  -webkit-box-pack: end;
+  -webkit-justify-content: flex-end;
   justify-content: flex-end;
+}
+
+/* ============================================================
+   Themes (Static iOS 9 Compatible Overrides)
+   ============================================================ */
+body[data-theme="cosmic-galaxy"] {
+  background-color: #06040f;
+}
+body[data-theme="cosmic-galaxy"] .clock-period,
+body[data-theme="cosmic-galaxy"] .location-badge,
+body[data-theme="cosmic-galaxy"] .btn-primary {
+  color: #a78bfa;
+}
+body[data-theme="cosmic-galaxy"] .btn-primary {
+  background: #a78bfa;
+  color: #0a0614;
+}
+
+body[data-theme="lofi-chill"] {
+  background-color: #120e20;
+}
+body[data-theme="lofi-chill"] .clock-period,
+body[data-theme="lofi-chill"] .location-badge {
+  color: #f472b6;
+}
+body[data-theme="lofi-chill"] .btn-primary {
+  background: #f472b6;
+  color: #120e20;
+}
+
+body[data-theme="emerald-forest"] {
+  background-color: #05120d;
+}
+body[data-theme="emerald-forest"] .clock-period,
+body[data-theme="emerald-forest"] .location-badge {
+  color: #34d399;
+}
+body[data-theme="emerald-forest"] .btn-primary {
+  background: #34d399;
+  color: #05120d;
+}
+
+body[data-theme="minimal-dark"] {
+  background-color: #000000;
+}
+body[data-theme="minimal-dark"] .grid-card {
+  background: #0d0d10;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+body[data-theme="minimal-dark"] .clock-period,
+body[data-theme="minimal-dark"] .location-badge {
+  color: #e2e8f0;
+}
+body[data-theme="minimal-dark"] .btn-primary {
+  background: #e2e8f0;
+  color: #000000;
 }
