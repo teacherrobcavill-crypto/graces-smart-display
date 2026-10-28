@@ -194,6 +194,25 @@ html, body {
   border-color: var(--accent-color);
 }
 
+.icon-btn.active {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+/* Immersive layout mode (for split-screen maximizing) */
+body.immersive-mode .dashboard-container {
+  padding: 12px 16px;
+}
+
+body.immersive-mode .top-bar {
+  margin-bottom: 8px;
+}
+
+body.immersive-mode .split-stack {
+  gap: 10px;
+}
+
 /* Split-Screen Stack (Left Column) */
 .split-stack {
   position: relative;
