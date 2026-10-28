@@ -262,14 +262,14 @@ html, body {
 }
 
 /* ============================================================
-   1. Clock Card (Expands down to the Weather Position)
+   1. Clock Card (Reduced Box, Enlarged Digits to Fill Space)
    ============================================================ */
 .clock-card {
-  -webkit-box-flex: 1;
-  -webkit-flex: 1 1 auto;
-  flex: 1 1 auto;
+  -webkit-box-flex: 58;
+  -webkit-flex: 58 1 0%;
+  flex: 58 1 0%;
   min-height: 0;
-  padding: 24px 28px;
+  padding: 20px 22px;
   margin-bottom: 14px;
   display: -webkit-box;
   display: -webkit-flex;
@@ -285,6 +285,7 @@ html, body {
   -webkit-align-items: center;
   align-items: center;
   text-align: center;
+  overflow: hidden;
 }
 
 .time-container {
@@ -297,42 +298,44 @@ html, body {
   -webkit-box-pack: center;
   -webkit-justify-content: center;
   justify-content: center;
+  width: 100%;
 }
 
 .clock-display {
   font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, sans-serif;
-  font-size: 5.8rem;
+  font-size: 6.8rem;
   font-weight: 800;
-  line-height: 0.95;
+  line-height: 0.9;
   letter-spacing: -0.04em;
   color: #ffffff;
   text-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
 }
 
 .clock-period {
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 700;
   color: #ff9aa2;
-  margin-left: 14px;
+  margin-left: 10px;
   text-transform: uppercase;
 }
 
 .date-display {
-  font-size: 1.4rem;
+  font-size: 1.45rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.88);
   margin-top: 14px;
   text-align: center;
 }
 
 /* ============================================================
-   2. Weather Card (Bramley & Tadley - Compact Bottom Position)
+   2. Weather Card (Increased Size, Spacious & Prominent)
    ============================================================ */
 .weather-card {
-  -webkit-box-flex: 0;
-  -webkit-flex: 0 0 auto;
-  flex: 0 0 auto;
-  padding: 16px 20px;
+  -webkit-box-flex: 42;
+  -webkit-flex: 42 1 0%;
+  flex: 42 1 0%;
+  min-height: 0;
+  padding: 20px 24px;
   display: -webkit-box;
   display: -webkit-flex;
   display: flex;
@@ -340,6 +343,9 @@ html, body {
   -webkit-box-direction: normal;
   -webkit-flex-direction: column;
   flex-direction: column;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
 }
 
 .weather-header {
@@ -352,7 +358,7 @@ html, body {
   -webkit-box-pack: justify;
   -webkit-justify-content: space-between;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .location-badge {
@@ -362,18 +368,20 @@ html, body {
   -webkit-box-align: center;
   -webkit-align-items: center;
   align-items: center;
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-size: 1.15rem;
+  font-weight: 700;
   color: #ff9aa2;
 }
 
 .location-badge .pin-icon {
-  margin-right: 6px;
+  margin-right: 8px;
+  width: 18px;
+  height: 18px;
 }
 
 .weather-updated {
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .weather-body {
@@ -386,6 +394,7 @@ html, body {
   -webkit-box-pack: justify;
   -webkit-justify-content: space-between;
   justify-content: space-between;
+  padding-bottom: 6px;
 }
 
 .weather-main-info {
@@ -398,13 +407,13 @@ html, body {
 }
 
 .weather-icon-large {
-  font-size: 3.2rem;
-  margin-right: 14px;
+  font-size: 3.8rem;
+  margin-right: 16px;
 }
 
 .current-temp {
   font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, sans-serif;
-  font-size: 3.2rem;
+  font-size: 3.8rem;
   font-weight: 700;
   line-height: 1;
   color: #ffffff;
@@ -412,18 +421,18 @@ html, body {
 
 .weather-condition {
   display: block;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.75);
-  margin-top: 3px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 4px;
 }
 
 .weather-stats {
   display: -webkit-box;
   display: -webkit-flex;
   display: flex;
-  border-left: 1px solid rgba(255, 255, 255, 0.15);
-  padding-left: 16px;
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+  padding-left: 20px;
 }
 
 .stat-item {
@@ -434,7 +443,7 @@ html, body {
   -webkit-box-direction: normal;
   -webkit-flex-direction: column;
   flex-direction: column;
-  margin-left: 16px;
+  margin-left: 20px;
 }
 
 .stat-item:first-child {
@@ -442,15 +451,16 @@ html, body {
 }
 
 .stat-label {
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
-  margin-bottom: 2px;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
 }
 
 .stat-value {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 700;
   color: #ffffff;
 }
 
