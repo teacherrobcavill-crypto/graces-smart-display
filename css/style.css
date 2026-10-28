@@ -260,9 +260,9 @@ body.immersive-mode .dashboard-grid {
 
 /* 1. Clock Card (Takes up majority of left column) */
 .clock-card {
-  flex: 1.6;
+  flex: 1.8;
   min-height: 0;
-  padding: 24px 28px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -274,39 +274,39 @@ body.immersive-mode .dashboard-grid {
   display: flex;
   align-items: baseline;
   justify-content: center;
-  gap: 14px;
+  gap: 16px;
 }
 
 .clock-display {
   font-family: var(--font-display);
-  font-size: clamp(6rem, 8.5vw, 8.2rem);
+  font-size: clamp(9.5rem, 14vw, 13.5rem);
   font-weight: 800;
-  line-height: 0.9;
-  letter-spacing: -0.04em;
-  text-shadow: 0 8px 36px rgba(0, 0, 0, 0.5);
+  line-height: 0.85;
+  letter-spacing: -0.05em;
+  text-shadow: 0 10px 48px rgba(0, 0, 0, 0.55);
 }
 
 .clock-period {
-  font-size: clamp(1.8rem, 2.5vw, 2.4rem);
-  font-weight: 700;
+  font-size: clamp(2.5rem, 3.8vw, 3.6rem);
+  font-weight: 800;
   color: var(--accent-color);
   text-transform: uppercase;
   letter-spacing: -0.02em;
 }
 
 .date-display {
-  font-size: clamp(1.4rem, 2vw, 1.95rem);
-  font-weight: 600;
+  font-size: clamp(2.2rem, 3.2vw, 3.2rem);
+  font-weight: 700;
   color: var(--text-secondary);
-  margin-top: 14px;
+  margin-top: 16px;
   letter-spacing: -0.02em;
 }
 
-/* 2. Weather Card (Bramley & Tadley) */
+/* 2. Weather Card (Bramley & Tadley - Centered in Box) */
 .weather-card {
   flex: 1;
   min-height: 0;
-  padding: 20px 28px;
+  padding: 20px 24px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -317,23 +317,22 @@ body.immersive-mode .dashboard-grid {
 .weather-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 680px;
-  margin-bottom: 12px;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 16px;
 }
 
 .location-badge {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 600;
   color: var(--accent-color);
 }
 
 .weather-updated {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
 }
 
@@ -341,32 +340,31 @@ body.immersive-mode .dashboard-grid {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 36px;
+  gap: 38px;
   width: 100%;
-  max-width: 680px;
 }
 
 .weather-main-info {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 20px;
 }
 
 .weather-icon-large {
-  font-size: 4.2rem;
-  filter: drop-shadow(0 4px 14px rgba(0,0,0,0.35));
+  font-size: 4.8rem;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.35));
 }
 
 .temp-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
+  align-items: center;
+  text-align: center;
 }
 
 .current-temp {
   font-family: var(--font-display);
-  font-size: 3.8rem;
+  font-size: 4.2rem;
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.03em;
@@ -374,7 +372,7 @@ body.immersive-mode .dashboard-grid {
 
 .weather-condition {
   display: block;
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: var(--text-secondary);
   margin-top: 4px;
@@ -382,9 +380,10 @@ body.immersive-mode .dashboard-grid {
 
 .weather-stats {
   display: flex;
-  gap: 24px;
+  gap: 28px;
   border-left: 2px solid var(--card-border);
-  padding-left: 28px;
+  padding-left: 32px;
+  align-items: center;
 }
 
 .stat-item {
@@ -395,7 +394,7 @@ body.immersive-mode .dashboard-grid {
 }
 
 .stat-label {
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
   text-transform: uppercase;
   font-weight: 600;
@@ -404,7 +403,7 @@ body.immersive-mode .dashboard-grid {
 }
 
 .stat-value {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: var(--text-primary);
 }
