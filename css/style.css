@@ -266,123 +266,146 @@ body.immersive-mode .dashboard-grid {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
 .time-container {
   display: flex;
   align-items: baseline;
-  gap: 12px;
+  justify-content: center;
+  gap: 14px;
 }
 
 .clock-display {
   font-family: var(--font-display);
-  font-size: 5.6rem;
+  font-size: clamp(6rem, 8.5vw, 8.2rem);
   font-weight: 800;
-  line-height: 0.95;
+  line-height: 0.9;
   letter-spacing: -0.04em;
-  text-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  text-shadow: 0 8px 36px rgba(0, 0, 0, 0.5);
 }
 
 .clock-period {
-  font-size: 1.8rem;
+  font-size: clamp(1.8rem, 2.5vw, 2.4rem);
   font-weight: 700;
   color: var(--accent-color);
   text-transform: uppercase;
+  letter-spacing: -0.02em;
 }
 
 .date-display {
-  font-size: 1.4rem;
-  font-weight: 500;
+  font-size: clamp(1.4rem, 2vw, 1.95rem);
+  font-weight: 600;
   color: var(--text-secondary);
-  margin-top: 8px;
-  letter-spacing: -0.01em;
+  margin-top: 14px;
+  letter-spacing: -0.02em;
 }
 
 /* 2. Weather Card (Bramley & Tadley) */
 .weather-card {
   flex: 1;
   min-height: 0;
-  padding: 18px 24px;
+  padding: 20px 28px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
 .weather-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  width: 100%;
+  max-width: 680px;
+  margin-bottom: 12px;
 }
 
 .location-badge {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.95rem;
+  gap: 8px;
+  font-size: 1.05rem;
   font-weight: 600;
   color: var(--accent-color);
 }
 
 .weather-updated {
-  font-size: 0.72rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
 }
 
 .weather-body {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 36px;
+  width: 100%;
+  max-width: 680px;
 }
 
 .weather-main-info {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 18px;
 }
 
 .weather-icon-large {
-  font-size: 3rem;
-  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+  font-size: 4.2rem;
+  filter: drop-shadow(0 4px 14px rgba(0,0,0,0.35));
+}
+
+.temp-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
 }
 
 .current-temp {
   font-family: var(--font-display);
-  font-size: 2.8rem;
-  font-weight: 700;
+  font-size: 3.8rem;
+  font-weight: 800;
   line-height: 1;
+  letter-spacing: -0.03em;
 }
 
 .weather-condition {
   display: block;
-  font-size: 0.95rem;
-  font-weight: 500;
+  font-size: 1.15rem;
+  font-weight: 600;
   color: var(--text-secondary);
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 .weather-stats {
   display: flex;
-  gap: 18px;
-  border-left: 1px solid var(--card-border);
-  padding-left: 18px;
+  gap: 24px;
+  border-left: 2px solid var(--card-border);
+  padding-left: 28px;
 }
 
 .stat-item {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .stat-label {
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
   text-transform: uppercase;
-  margin-bottom: 2px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
 }
 
 .stat-value {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 700;
   color: var(--text-primary);
 }
 
