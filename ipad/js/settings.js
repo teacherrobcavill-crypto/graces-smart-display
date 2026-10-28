@@ -1,7 +1,7 @@
 /**
- * Settings Manager & LocalStorage for Rob's iPad Display
+ * Legacy iOS Compatible Settings Manager (ES5)
  */
-const SettingsManager = {
+var SettingsManager = {
   STORAGE_KEY: 'robs_ipad_display_config_v1',
 
   defaults: {
@@ -16,59 +16,66 @@ const SettingsManager = {
 
   config: null,
 
-  load() {
+  load: function() {
     try {
-      const stored = localStorage.getItem(this.STORAGE_KEY);
+      var stored = localStorage.getItem(this.STORAGE_KEY);
       if (stored) {
-        this.config = Object.assign({}, this.defaults, JSON.parse(stored));
+        var parsed = JSON.parse(stored);
+        this.config = {};
+        for (var key in this.defaults) {
+          this.config[key] = typeof parsed[key] !== 'undefined' ? parsed[key] : this.defaults[key];
+        }
       } else {
-        this.config = Object.assign({}, this.defaults);
+        this.config = JSON.parse(JSON.stringify(this.defaults));
       }
     } catch (e) {
-      this.config = Object.assign({}, this.defaults);
+      this.config = JSON.parse(JSON.stringify(this.defaults));
     }
     return this.config;
   },
 
-  save(newConfig) {
-    this.config = Object.assign({}, this.config, newConfig);
+  save: function(newConfig) {
+    for (var key in newConfig) {
+      this.config[key] = newConfig[key];
+    }
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.config));
     } catch (e) {
-      console.warn('LocalStorage save failed:', e);
+      console.warn('LocalStorage save error:', e);
     }
   },
 
-  initModal() {
-    const modal = document.getElementById('settingsModal');
-    const openBtn = document.getElementById('settingsBtn');
-    const closeBtn = document.getElementById('closeSettingsBtn');
-    const saveBtn = document.getElementById('saveSettingsBtn');
+  initModal: function() {
+    var modal = document.getElementById('settingsModal');
+    var openBtn = document.getElementById('settingsBtn');
+    var closeBtn = document.getElementById('closeSettingsBtn');
+    var saveBtn = document.getElementById('saveSettingsBtn');
 
     if (!modal || !openBtn) return;
 
-    openBtn.addEventListener('click', () => {
-      this.populateForm();
-      modal.classList.add('is-open');
+    var self = this;
+    openBtn.addEventListener('click', function() {
+      self.populateForm();
+      modal.className += ' is-open';
     });
 
-    closeBtn.addEventListener('click', () => {
-      modal.classList.remove('is-open');
+    closeBtn.addEventListener('click', function() {
+      modal.className = modal.className.replace(' is-open', '');
     });
 
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) modal.classList.remove('is-open');
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) modal.className = modal.className.replace(' is-open', '');
     });
 
-    saveBtn.addEventListener('click', () => {
-      this.saveFromForm();
-      modal.classList.remove('is-open');
-      this.applyConfig();
+    saveBtn.addEventListener('click', function() {
+      self.saveFromForm();
+      modal.className = modal.className.replace(' is-open', '');
+      self.applyConfig();
     });
   },
 
-  populateForm() {
-    const c = this.config;
+  populateForm: function() {
+    var c = this.config;
     document.getElementById('settingName').value = c.userName;
     document.getElementById('settingLocation').value = c.locationName;
     document.getElementById('settingLat').value = c.lat;
@@ -78,8 +85,8 @@ const SettingsManager = {
     document.getElementById('settingWakeLock').checked = c.wakeLockEnabled;
   },
 
-  saveFromForm() {
-    const newConfig = {
+  saveFromForm: function() {
+    var newConfig = {
       userName: document.getElementById('settingName').value.trim() || 'Rob',
       locationName: document.getElementById('settingLocation').value.trim() || 'Bramley, Tadley',
       lat: parseFloat(document.getElementById('settingLat').value) || 51.3300,
@@ -92,18 +99,15 @@ const SettingsManager = {
     this.save(newConfig);
   },
 
-  applyConfig() {
-    const c = this.config;
+  applyConfig: function() {
+    var c = this.config;
 
-    // Apply theme
     document.body.setAttribute('data-theme', c.theme);
 
-    // Update Clock
     ClockManager.userName = c.userName;
     ClockManager.is24Hour = c.is24Hour;
     ClockManager.updateClock();
 
-    // Update Weather
     WeatherManager.lat = c.lat;
     WeatherManager.lon = c.lon;
     WeatherManager.locationName = c.locationName;
