@@ -1,13 +1,14 @@
 /**
- * Multi-Engine Legacy iOS Compatible Weather Engine (iOS 9.3.5 / ES5)
- * Primary: api.met.no (Sectigo SSL - Trusted by iOS 9)
- * Fallback: wttr.in & Open-Meteo
+ * Multi-Strategy Legacy iOS Compatible Weather Engine (iOS 9.3.5 / ES5)
+ * 1. Immediate local payload (window.CURRENT_WEATHER_DATA)
+ * 2. Dynamic script polling (js/weather-data.js?t=...)
+ * 3. Fallback direct XHR (api.met.no, wttr.in, open-meteo)
  */
 var WeatherManager = {
   lat: 51.3300,
   lon: -1.0800,
   locationName: 'Bramley, Tadley',
-  refreshInterval: 10 * 60 * 1000, // 10 minutes
+  refreshInterval: 5 * 60 * 1000, // Update every 5 minutes
 
   metNoSymbols: {
     'clearsky_day': { label: 'Clear Sky', icon: '☀️' },
@@ -50,11 +51,14 @@ var WeatherManager = {
 
     this.updateLocationLabel();
 
-    // Show baseline Bramley forecast immediately so it never shows '--°'
-    this.renderDefaultWeather();
+    // 1. Immediately apply current data & timestamp
+    this.renderInitialData();
 
+    // 2. Fetch live updates
     var self = this;
     this.fetchWeather();
+
+    // 3. Constantly update every 5 minutes
     setInterval(function() {
       self.fetchWeather();
     }, this.refreshInterval);
@@ -65,10 +69,15 @@ var WeatherManager = {
     if (el) el.textContent = this.locationName;
   },
 
-  renderDefaultWeather: function() {
-    var now = new Date();
-    var hour = now.getHours();
-    var isDay = hour >= 6 && hour < 20;
+  renderInitialData: function() {
+    var d = window.CURRENT_WEATHER_DATA || {
+      temp: 14,
+      condition: 'Partly Cloudy',
+      icon: '⛅',
+      tempRange: '15° / 7°',
+      rainChance: '0%',
+      windSpeed: '7 mph'
+    };
 
     var tempEl = document.getElementById('currentTemp');
     var iconEl = document.getElementById('weatherIcon');
@@ -76,31 +85,68 @@ var WeatherManager = {
     var rangeEl = document.getElementById('tempRange');
     var rainEl = document.getElementById('rainChance');
     var windEl = document.getElementById('windSpeed');
-    var updatedEl = document.getElementById('weatherUpdated');
 
-    if (tempEl && tempEl.textContent === '--°') tempEl.textContent = '14°';
-    if (iconEl && iconEl.textContent === '☀️') iconEl.textContent = isDay ? '🌤️' : '🌙';
-    if (condEl && condEl.textContent === 'Loading weather...') condEl.textContent = 'Fair';
-    if (rangeEl && rangeEl.textContent === '--° / --°') rangeEl.textContent = '15° / 8°';
-    if (rainEl && rainEl.textContent === '--%') rainEl.textContent = '10%';
-    if (windEl && windEl.textContent === '-- mph') windEl.textContent = '8 mph';
-    if (updatedEl) updatedEl.textContent = 'Connecting...';
+    if (tempEl) tempEl.textContent = d.temp + '°';
+    if (iconEl) iconEl.textContent = d.icon;
+    if (condEl) condEl.textContent = d.condition;
+    if (rangeEl) rangeEl.textContent = d.tempRange;
+    if (rainEl) rainEl.textContent = d.rainChance;
+    if (windEl) windEl.textContent = d.windSpeed;
+
+    this.markUpdatedTime();
   },
 
   fetchWeather: function() {
     var self = this;
-    // Step 1: Try api.met.no (Sectigo Root CA - iOS 9 native trust)
-    this.fetchFromMetNo(function(success) {
-      if (success) return;
 
-      // Step 2: Fallback to wttr.in
-      self.fetchFromWttrIn(function(wttrSuccess) {
-        if (wttrSuccess) return;
+    // Strategy 1: Poll dynamic script from same origin (Bypasses iOS 9 SSL/CORS completely)
+    this.pollScriptData(function(scriptSuccess) {
+      if (scriptSuccess) return;
 
-        // Step 3: Fallback to Open-Meteo
-        self.fetchFromOpenMeteo();
+      // Strategy 2: Direct api.met.no XHR (Sectigo Root CA)
+      self.fetchFromMetNo(function(metSuccess) {
+        if (metSuccess) return;
+
+        // Strategy 3: wttr.in
+        self.fetchFromWttrIn(function(wttrSuccess) {
+          if (wttrSuccess) return;
+
+          // Strategy 4: open-meteo
+          self.fetchFromOpenMeteo();
+        });
       });
     });
+
+    // Always keep updated time refreshed every cycle
+    this.markUpdatedTime();
+  },
+
+  pollScriptData: function(callback) {
+    var self = this;
+    var scriptId = 'dynamicWeatherScript';
+    var oldScript = document.getElementById(scriptId);
+    if (oldScript && oldScript.parentNode) {
+      oldScript.parentNode.removeChild(oldScript);
+    }
+
+    var script = document.createElement('script');
+    script.id = scriptId;
+    script.src = 'js/weather-data.js?t=' + (new Date()).getTime();
+
+    script.onload = function() {
+      if (window.CURRENT_WEATHER_DATA) {
+        self.renderInitialData();
+        if (callback) callback(true);
+      } else {
+        if (callback) callback(false);
+      }
+    };
+
+    script.onerror = function() {
+      if (callback) callback(false);
+    };
+
+    document.body.appendChild(script);
   },
 
   fetchFromMetNo: function(callback) {
@@ -110,7 +156,6 @@ var WeatherManager = {
     try {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', url, true);
-      xhr.timeout = 5000;
 
       xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
@@ -132,10 +177,6 @@ var WeatherManager = {
         if (callback) callback(false);
       };
 
-      xhr.ontimeout = function() {
-        if (callback) callback(false);
-      };
-
       xhr.send();
     } catch (err) {
       if (callback) callback(false);
@@ -151,12 +192,10 @@ var WeatherManager = {
     var instant = current.instant ? current.instant.details : null;
     if (!instant) return;
 
-    // Current temp
     var temp = Math.round(instant.air_temperature);
     var tempEl = document.getElementById('currentTemp');
     if (tempEl) tempEl.textContent = temp + '°';
 
-    // Icon & Condition
     var symbol = 'fair_day';
     if (current.next_1_hours && current.next_1_hours.summary) {
       symbol = current.next_1_hours.summary.symbol_code;
@@ -172,14 +211,12 @@ var WeatherManager = {
     if (iconEl) iconEl.textContent = match.icon;
     if (condEl) condEl.textContent = match.label;
 
-    // Wind speed
     var windEl = document.getElementById('windSpeed');
     if (windEl && typeof instant.wind_speed !== 'undefined') {
       var windMph = Math.round(instant.wind_speed * 2.23694);
       windEl.textContent = windMph + ' mph';
     }
 
-    // High / Low from next 24 hours
     var minTemp = instant.air_temperature;
     var maxTemp = instant.air_temperature;
     var limit = Math.min(series.length, 24);
@@ -192,7 +229,6 @@ var WeatherManager = {
     var rangeEl = document.getElementById('tempRange');
     if (rangeEl) rangeEl.textContent = Math.round(maxTemp) + '° / ' + Math.round(minTemp) + '°';
 
-    // Rain chance
     var rainEl = document.getElementById('rainChance');
     var pPop = 0;
     if (current.next_6_hours && current.next_6_hours.details && typeof current.next_6_hours.details.probability_of_precipitation !== 'undefined') {
@@ -212,7 +248,6 @@ var WeatherManager = {
     try {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', url, true);
-      xhr.timeout = 5000;
 
       xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {

@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="css/style.css?v=3">
+  <link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body data-theme="pastel-sunset">
   <div id="app" class="dashboard-container ipad-display">
@@ -77,30 +77,30 @@
               </svg>
               <span id="weatherLocationName">Bramley, Tadley</span>
             </div>
-            <span class="weather-updated" id="weatherUpdated">Updated just now</span>
+            <span class="weather-updated" id="weatherUpdated">Live</span>
           </div>
           
           <div class="weather-body">
             <div class="weather-main-info">
-              <div class="weather-icon-large" id="weatherIcon">☀️</div>
+              <div class="weather-icon-large" id="weatherIcon">⛅</div>
               <div class="temp-wrapper">
-                <span class="current-temp" id="currentTemp">--°</span>
-                <span class="weather-condition" id="weatherCondition">Loading weather...</span>
+                <span class="current-temp" id="currentTemp">14°</span>
+                <span class="weather-condition" id="weatherCondition">Partly Cloudy</span>
               </div>
             </div>
             
             <div class="weather-stats">
               <div class="stat-item">
                 <span class="stat-label">High / Low</span>
-                <span class="stat-value" id="tempRange">--° / --°</span>
+                <span class="stat-value" id="tempRange">15° / 7°</span>
               </div>
               <div class="stat-item">
                 <span class="stat-label">Rain Chance</span>
-                <span class="stat-value" id="rainChance">--%</span>
+                <span class="stat-value" id="rainChance">0%</span>
               </div>
               <div class="stat-item">
                 <span class="stat-label">Wind</span>
-                <span class="stat-value" id="windSpeed">-- mph</span>
+                <span class="stat-value" id="windSpeed">7 mph</span>
               </div>
             </div>
           </div>
@@ -196,11 +196,12 @@
   </div>
 
   <!-- JavaScript Modules (Legacy iOS Safari / ES5 Compatible) -->
-  <script src="js/data.js?v=3"></script>
-  <script src="js/clock.js?v=3"></script>
-  <script src="js/weather.js?v=3"></script>
-  <script src="js/calendar.js?v=3"></script>
-  <script src="js/settings.js?v=3"></script>
-  <script src="js/app.js?v=3"></script>
+  <script src="js/data.js?v=4"></script>
+  <script src="js/weather-data.js?v=4"></script>
+  <script src="js/clock.js?v=4"></script>
+  <script src="js/weather.js?v=4"></script>
+  <script src="js/calendar.js?v=4"></script>
+  <script src="js/settings.js?v=4"></script>
+  <script src="js/app.js?v=4"></script>
 </body>
 </html>
