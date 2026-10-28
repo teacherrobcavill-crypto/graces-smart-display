@@ -72,7 +72,7 @@ const CalendarManager = {
     const currentDate = now.getDate();
 
     const startOfToday = new Date(currentYear, currentMonth, currentDate, 0, 0, 0);
-    const endWindow = new Date(startOfToday.getTime() + 14 * 24 * 60 * 60 * 1000); // Next 14 days
+    const endWindow = new Date(startOfToday.getTime() + 35 * 24 * 60 * 60 * 1000); // Look ahead 35 days (5 weeks)
 
     const processed = [];
 
@@ -118,7 +118,7 @@ const CalendarManager = {
       }
     });
 
-    this.upcomingEvents = unique.slice(0, 8); // Top 8 upcoming
+    this.upcomingEvents = unique.slice(0, 25); // Show up to 25 upcoming events
     this.renderCalendar();
   },
 
