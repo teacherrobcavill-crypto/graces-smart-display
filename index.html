@@ -79,9 +79,9 @@
           </button>
           
           <div class="alexa-prompts" id="alexaPrompts">
-            <button type="button" class="prompt-chip" data-query="Top Pop Hits">🎵 "Alexa, play pop hits on Amazon Music"</button>
-            <button type="button" class="prompt-chip" data-query="Bedtime Sleep Sounds">💤 "Alexa, play bedtime sleep sounds"</button>
-            <button type="button" class="prompt-chip" data-action="alarm">⏰ "Alexa, set an alarm for 7:30 AM"</button>
+            <button type="button" class="prompt-chip" data-query="Top Pop Hits">🎵 "Alexa, play pop hits"</button>
+            <button type="button" class="prompt-chip" data-action="skip">⏭️ "Alexa, skip track"</button>
+            <button type="button" class="prompt-chip" data-query="Bedtime Sleep Sounds">💤 "Alexa, bedtime sleep sounds"</button>
             <button type="button" class="prompt-chip" data-action="weather">☀️ "Alexa, what's the weather today?"</button>
           </div>
         </div>
@@ -155,8 +155,23 @@
               </div>
             </div>
             <div class="now-playing-controls">
-              <button type="button" class="playback-btn" id="stopAudioBtn" title="Stop Audio">
+              <button type="button" class="playback-btn" id="prevAudioBtn" title="Previous Track">
                 <svg viewBox="0 0 24 24" width="18" height="18">
+                  <path fill="currentColor" d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                </svg>
+              </button>
+              <button type="button" class="playback-btn" id="playPauseAudioBtn" title="Play / Pause">
+                <svg viewBox="0 0 24 24" width="18" height="18" id="playPauseIcon">
+                  <path fill="currentColor" d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                </svg>
+              </button>
+              <button type="button" class="playback-btn" id="skipAudioBtn" title="Skip to Next Track">
+                <svg viewBox="0 0 24 24" width="18" height="18">
+                  <path fill="currentColor" d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                </svg>
+              </button>
+              <button type="button" class="playback-btn stop-btn" id="stopAudioBtn" title="Stop">
+                <svg viewBox="0 0 24 24" width="16" height="16">
                   <rect x="6" y="6" width="12" height="12" fill="currentColor"/>
                 </svg>
               </button>

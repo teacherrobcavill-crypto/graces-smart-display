@@ -1,8 +1,9 @@
 /**
- * In-Screen Audio & JBL Boombox Hub for Grace's Smart Display
- * - 100% In-Screen Audio Playback (Never leaves dashboard)
- * - Streams Pop Hits, Lofi, Soundtracks, and generative Bedtime Rain
- * - Sends sub-audible heartbeat to keep JBL Boombox awake
+ * In-Screen Audio & Multi-Track Engine for Grace's Smart Display
+ * - Multi-track catalog supporting "Alexa, skip" / "Alexa, next track"
+ * - In-screen controls: Previous, Play/Pause, Next/Skip, Stop
+ * - Generative offline Bedtime Sleep Rain
+ * - Keeps JBL Boombox awake with inaudible 20Hz pulse
  */
 const MusicManager = {
   keepAliveEnabled: true,
@@ -11,29 +12,58 @@ const MusicManager = {
   currentStreamAudio: null,
   rainNoiseNode: null,
   isPlaying: false,
+  isPaused: false,
 
-  // Curated reliable high-quality continuous audio streams
-  streams: {
-    'top pop hits': 'https://stream.zeno.fm/f3wvbbqmdg8uv', // Pop Hits stream
-    'pop': 'https://stream.zeno.fm/f3wvbbqmdg8uv',
-    'study & chill': 'https://stream.zeno.fm/0r0xa792kwzuv', // Lofi Beats stream
-    'lofi': 'https://stream.zeno.fm/0r0xa792kwzuv',
-    'disney favorites': 'https://stream.zeno.fm/f9u2h5h3y5quv', // Soundtracks / Family
-    'soundtracks': 'https://stream.zeno.fm/f9u2h5h3y5quv'
-  },
+  currentCategoryIndex: 0,
+  currentTrackIndex: 0,
 
-  defaultPlaylists: [
-    { id: '1', title: 'Top Pop Hits', icon: '🎧', query: 'top pop hits' },
-    { id: '2', title: 'Bedtime Calm', icon: '💤', query: 'bedtime' },
-    { id: '3', title: 'Study & Chill', icon: '📚', query: 'study & chill' },
-    { id: '4', title: 'Disney Favorites', icon: '✨', query: 'disney favorites' }
+  catalog: [
+    {
+      id: 'pop',
+      category: 'Top Pop Hits',
+      icon: '🎧',
+      tracks: [
+        { title: 'Global Pop Hits 2026', artist: 'Chart Radio 1', url: 'https://stream.zeno.fm/f3wvbbqmdg8uv' },
+        { title: 'Top 40 UK & US Countdown', artist: 'Hit Mix Radio', url: 'https://stream.zeno.fm/4t83wcfqd0hvv' },
+        { title: 'Teen Pop Dance Party', artist: 'Energy Radio UK', url: 'https://stream.zeno.fm/0r0xa792kwzuv' }
+      ]
+    },
+    {
+      id: 'disney',
+      category: 'Disney Favorites',
+      icon: '✨',
+      tracks: [
+        { title: 'Disney Magical Soundtracks', artist: 'Disney Soundtracks', url: 'https://stream.zeno.fm/f9u2h5h3y5quv' },
+        { title: 'Family Movie Hits', artist: 'Kids Radio UK', url: 'https://stream.zeno.fm/75k1z5mrvqruv' },
+        { title: 'Classic Animation Melodies', artist: 'Magical Kingdom', url: 'https://stream.zeno.fm/f3wvbbqmdg8uv' }
+      ]
+    },
+    {
+      id: 'lofi',
+      category: 'Study & Chill',
+      icon: '📚',
+      tracks: [
+        { title: 'Lofi Chill Study Beats', artist: 'Chillhop Beats', url: 'https://stream.zeno.fm/0r0xa792kwzuv' },
+        { title: 'Cozy Bedroom Vibes', artist: 'Lofi Cafe', url: 'https://stream.zeno.fm/v9uqg26y968uv' },
+        { title: 'Midnight Chill Lounge', artist: 'Aesthetic Sound', url: 'https://stream.zeno.fm/f3wvbbqmdg8uv' }
+      ]
+    },
+    {
+      id: 'bedtime',
+      category: 'Bedtime Calm',
+      icon: '💤',
+      isRain: true,
+      tracks: [
+        { title: 'Gentle Bedroom Rain', artist: 'Natural Sleep Sounds', url: 'rain' },
+        { title: 'Soothing Sleep Ambience', artist: 'Deep Calm', url: 'rain' }
+      ]
+    }
   ],
+
   playlists: [],
 
   init(options = {}) {
-    this.playlists = options.playlists || this.defaultPlaylists;
     this.keepAliveEnabled = options.keepAliveEnabled ?? true;
-
     this.renderPlaylists();
     this.bindControls();
 
@@ -47,24 +77,49 @@ const MusicManager = {
     if (!grid) return;
 
     grid.innerHTML = '';
-    this.playlists.forEach(pl => {
+    this.catalog.forEach((cat, idx) => {
       const btn = document.createElement('button');
       btn.className = 'playlist-btn';
       btn.type = 'button';
       btn.innerHTML = `
-        <span class="btn-icon">${pl.icon || '🎵'}</span>
-        <span class="btn-title">${pl.title}</span>
+        <span class="btn-icon">${cat.icon || '🎵'}</span>
+        <span class="btn-title">${cat.category}</span>
       `;
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        this.playInScreenAudio(pl.query || pl.title);
+        this.selectCategory(idx, 0);
       });
       grid.appendChild(btn);
     });
   },
 
   bindControls() {
+    const prevBtn = document.getElementById('prevAudioBtn');
+    const playPauseBtn = document.getElementById('playPauseAudioBtn');
+    const skipBtn = document.getElementById('skipAudioBtn');
     const stopBtn = document.getElementById('stopAudioBtn');
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.skipPrevious();
+      });
+    }
+
+    if (playPauseBtn) {
+      playPauseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.togglePlayPause();
+      });
+    }
+
+    if (skipBtn) {
+      skipBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.skipNext();
+      });
+    }
+
     if (stopBtn) {
       stopBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -73,60 +128,144 @@ const MusicManager = {
     }
 
     this.currentStreamAudio = document.getElementById('dashboardAudioPlayer');
-    if (this.currentStreamAudio) {
-      this.currentStreamAudio.addEventListener('error', (e) => {
-        console.warn('Audio stream error, falling back to ambient generator:', e);
-      });
-    }
   },
 
-  /**
-   * Play music completely in-screen without opening any apps
-   */
+  selectCategory(catIdx, trackIdx = 0) {
+    this.currentCategoryIndex = catIdx % this.catalog.length;
+    const cat = this.catalog[this.currentCategoryIndex];
+    this.currentTrackIndex = trackIdx % cat.tracks.length;
+
+    this.playCurrentTrack();
+  },
+
   playInScreenAudio(query) {
     const q = (query || '').toLowerCase().trim();
 
     // Check for Bedtime / Rain
-    if (q.includes('bedtime') || q.includes('sleep') || q.includes('rain')) {
-      this.playBedtimeSounds();
+    if (q.includes('bedtime') || q.includes('sleep') || q.includes('rain') || q.includes('night')) {
+      const bedtimeIdx = this.catalog.findIndex(c => c.id === 'bedtime');
+      this.selectCategory(bedtimeIdx >= 0 ? bedtimeIdx : 3, 0);
       return;
     }
 
-    // Stop existing audio
-    this.stopAudio();
+    // Match genre
+    let targetIdx = 0;
+    if (q.includes('disney') || q.includes('soundtrack') || q.includes('magic')) {
+      targetIdx = this.catalog.findIndex(c => c.id === 'disney');
+    } else if (q.includes('lofi') || q.includes('study') || q.includes('chill')) {
+      targetIdx = this.catalog.findIndex(c => c.id === 'lofi');
+    } else {
+      targetIdx = 0; // Default to Pop Hits
+    }
 
-    // Match stream URL or default to Pop Hits
-    let streamUrl = this.streams['top pop hits'];
-    let displayTitle = query || 'Top Pop Hits';
+    this.selectCategory(targetIdx >= 0 ? targetIdx : 0, 0);
+  },
 
-    for (const key of Object.keys(this.streams)) {
-      if (q.includes(key)) {
-        streamUrl = this.streams[key];
-        break;
+  playCurrentTrack() {
+    this.stopAudioStreamsOnly();
+
+    const cat = this.catalog[this.currentCategoryIndex];
+    const track = cat.tracks[this.currentTrackIndex];
+
+    if (cat.isRain || track.url === 'rain') {
+      this.startRainSound();
+      this.showNowPlaying(track.title, `${track.artist} (JBL Boombox)`, cat.icon);
+    } else {
+      if (!this.currentStreamAudio) {
+        this.currentStreamAudio = document.getElementById('dashboardAudioPlayer');
       }
+      if (this.currentStreamAudio) {
+        this.currentStreamAudio.src = track.url;
+        this.currentStreamAudio.play().catch(e => {
+          console.debug('Autoplay waiting for touch:', e);
+        });
+      }
+      this.showNowPlaying(track.title, `${track.artist} · ${cat.category}`, cat.icon);
     }
 
-    if (!this.currentStreamAudio) {
-      this.currentStreamAudio = document.getElementById('dashboardAudioPlayer');
-    }
-
-    if (this.currentStreamAudio) {
-      this.currentStreamAudio.src = streamUrl;
-      this.currentStreamAudio.play().catch(e => {
-        console.debug('Autoplay prevented, requires tap:', e);
-      });
-      this.isPlaying = true;
-    }
-
-    this.showNowPlaying(displayTitle, 'Streaming on JBL Boombox', '🎧');
+    this.isPlaying = true;
+    this.isPaused = false;
+    this.updatePlayPauseIcon(true);
   },
 
   /**
-   * Generative Bedtime Rain & Sleep White Noise (Lush, offline, relaxing)
+   * "Alexa, skip" / "Alexa, next track"
    */
-  playBedtimeSounds() {
-    this.stopAudio();
+  skipNext() {
+    const cat = this.catalog[this.currentCategoryIndex];
+    this.currentTrackIndex = (this.currentTrackIndex + 1) % cat.tracks.length;
+    this.playCurrentTrack();
+    return cat.tracks[this.currentTrackIndex].title;
+  },
 
+  /**
+   * "Alexa, previous track"
+   */
+  skipPrevious() {
+    const cat = this.catalog[this.currentCategoryIndex];
+    this.currentTrackIndex = (this.currentTrackIndex - 1 + cat.tracks.length) % cat.tracks.length;
+    this.playCurrentTrack();
+    return cat.tracks[this.currentTrackIndex].title;
+  },
+
+  togglePlayPause() {
+    if (!this.isPlaying) {
+      this.selectCategory(this.currentCategoryIndex, this.currentTrackIndex);
+      return;
+    }
+
+    if (this.isPaused) {
+      this.resumeAudio();
+    } else {
+      this.pauseAudio();
+    }
+  },
+
+  pauseAudio() {
+    if (this.currentStreamAudio) {
+      this.currentStreamAudio.pause();
+    }
+    if (this.rainNoiseNode) {
+      try { this.rainNoiseNode.stop(); } catch (e) {}
+      this.rainNoiseNode = null;
+    }
+    this.isPaused = true;
+    this.updatePlayPauseIcon(false);
+  },
+
+  resumeAudio() {
+    const cat = this.catalog[this.currentCategoryIndex];
+    if (cat.isRain) {
+      this.startRainSound();
+    } else if (this.currentStreamAudio) {
+      this.currentStreamAudio.play().catch(e => console.debug(e));
+    }
+    this.isPaused = false;
+    this.updatePlayPauseIcon(true);
+  },
+
+  stopAudioStreamsOnly() {
+    if (this.currentStreamAudio) {
+      this.currentStreamAudio.pause();
+      this.currentStreamAudio.src = '';
+    }
+    if (this.rainNoiseNode) {
+      try {
+        this.rainNoiseNode.stop();
+        this.rainNoiseNode.disconnect();
+      } catch (e) {}
+      this.rainNoiseNode = null;
+    }
+  },
+
+  stopAudio() {
+    this.stopAudioStreamsOnly();
+    this.isPlaying = false;
+    this.isPaused = false;
+    this.hideNowPlaying();
+  },
+
+  startRainSound() {
     try {
       const AudioClass = window.AudioContext || window.webkitAudioContext;
       if (!this.audioContext) {
@@ -136,7 +275,6 @@ const MusicManager = {
         this.audioContext.resume();
       }
 
-      // Generate 5 seconds of soft pink noise buffer
       const bufferSize = this.audioContext.sampleRate * 5;
       const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
       const data = buffer.getChannelData(0);
@@ -158,7 +296,6 @@ const MusicManager = {
       noise.buffer = buffer;
       noise.loop = true;
 
-      // Warm low-pass filter to sound like gentle rain outside bedroom window
       const filter = this.audioContext.createBiquadFilter();
       filter.type = 'lowpass';
       filter.frequency.setValueAtTime(800, this.audioContext.currentTime);
@@ -172,35 +309,9 @@ const MusicManager = {
 
       noise.start();
       this.rainNoiseNode = noise;
-      this.isPlaying = true;
-
-      this.showNowPlaying('Bedtime Sleep Sounds', 'Gentle rain on JBL Boombox', '🌧️');
     } catch (e) {
-      console.warn('Bedtime sounds generator error:', e);
+      console.warn('Rain sound error:', e);
     }
-  },
-
-  /**
-   * Stop all playing audio
-   */
-  stopAudio() {
-    // 1. Stop streaming audio
-    if (this.currentStreamAudio) {
-      this.currentStreamAudio.pause();
-      this.currentStreamAudio.src = '';
-    }
-
-    // 2. Stop generative rain
-    if (this.rainNoiseNode) {
-      try {
-        this.rainNoiseNode.stop();
-        this.rainNoiseNode.disconnect();
-      } catch (e) {}
-      this.rainNoiseNode = null;
-    }
-
-    this.isPlaying = false;
-    this.hideNowPlaying();
   },
 
   showNowPlaying(title, subtitle, icon = '🎵') {
@@ -220,26 +331,25 @@ const MusicManager = {
     if (bar) bar.classList.remove('is-active');
   },
 
-  /**
-   * Sub-audible (20Hz) audio pulse to keep JBL Boombox Bluetooth link active
-   */
+  updatePlayPauseIcon(isPlaying) {
+    const icon = document.getElementById('playPauseIcon');
+    if (!icon) return;
+    if (isPlaying) {
+      icon.innerHTML = '<path fill="currentColor" d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; // Pause symbol
+    } else {
+      icon.innerHTML = '<path fill="currentColor" d="M8 5v14l11-7z"/>'; // Play triangle symbol
+    }
+  },
+
   startKeepAlive() {
     if (this.keepAliveIntervalId) clearInterval(this.keepAliveIntervalId);
-
     this.keepAliveIntervalId = setInterval(() => {
       this.playSilentPulse();
     }, 9 * 60 * 1000);
   },
 
-  stopKeepAlive() {
-    if (this.keepAliveIntervalId) {
-      clearInterval(this.keepAliveIntervalId);
-      this.keepAliveIntervalId = null;
-    }
-  },
-
   playSilentPulse() {
-    if (this.isPlaying) return; // If already playing music, speaker is definitely awake!
+    if (this.isPlaying && !this.isPaused) return;
 
     try {
       const AudioClass = window.AudioContext || window.webkitAudioContext;
@@ -262,7 +372,7 @@ const MusicManager = {
       osc.start();
       osc.stop(this.audioContext.currentTime + 0.3);
     } catch (e) {
-      console.debug('Keep-alive pulse waiting for initial touch.');
+      console.debug('Pulse waiting for user touch');
     }
   }
 };

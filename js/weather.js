@@ -5,7 +5,7 @@ const WeatherManager = {
   lat: 51.3300,
   lon: -1.0800,
   locationName: 'Bramley, Tadley',
-  refreshInterval: 20 * 60 * 1000, // 20 minutes
+  refreshInterval: 5 * 60 * 1000, // Updates every 5 minutes automatically
 
   wmoCodeMap: {
     0: { label: 'Clear Sky', icon: '☀️' },
