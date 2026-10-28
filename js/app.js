@@ -30,24 +30,43 @@ document.addEventListener('DOMContentLoaded', () => {
   // 6. Initialize Settings Modal
   SettingsManager.initModal();
 
-  // 7. Setup Night Mode Controls
+  // 7. Setup Evening Clock / Night Mode Controls
   const nightModeBtn = document.getElementById('nightModeBtn');
   const nightOverlay = document.getElementById('nightModeOverlay');
 
-  if (nightModeBtn) {
-    nightModeBtn.addEventListener('click', () => {
-      document.body.classList.toggle('night-mode-active');
-    });
+  function enterEveningClock(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    ClockManager.enterNightMode();
   }
 
-  // Tapping the night screen temporarily wakes it up for 25 seconds
+  function exitEveningClock(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    ClockManager.exitNightMode();
+  }
+
+  if (nightModeBtn) {
+    nightModeBtn.addEventListener('click', enterEveningClock);
+  }
+
+  // Touching anywhere on the evening clock screen returns to the main dashboard
   if (nightOverlay) {
-    nightOverlay.addEventListener('click', () => {
-      ClockManager.dismissNightModeTemporarily();
-      setTimeout(() => {
-        const now = new Date();
-        ClockManager.checkNightSchedule(now.getHours(), now.getMinutes());
-      }, 25000);
+    let touched = false;
+    nightOverlay.addEventListener('pointerup', (e) => {
+      touched = true;
+      exitEveningClock(e);
+      setTimeout(() => { touched = false; }, 300);
+    });
+
+    nightOverlay.addEventListener('click', (e) => {
+      if (!touched) {
+        exitEveningClock(e);
+      }
     });
   }
 

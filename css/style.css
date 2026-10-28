@@ -587,7 +587,7 @@ body.immersive-mode .dashboard-grid {
 }
 
 /* ============================================================
-   Bedtime / Night Mode Overlay
+   Bedtime / Evening Clock Overlay (Full Screen)
    ============================================================ */
 .night-mode-overlay {
   position: fixed;
@@ -596,19 +596,20 @@ body.immersive-mode .dashboard-grid {
   width: 100vw;
   height: 100vh;
   background-color: #000000;
-  z-index: 100;
-  display: none;
+  z-index: 9999;
+  display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.5s ease;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
 }
 
 body.night-mode-active .night-mode-overlay {
-  display: flex;
   opacity: 1;
   pointer-events: auto;
+  visibility: visible;
 }
 
 .night-clock-container {
@@ -617,6 +618,8 @@ body.night-mode-active .night-mode-overlay {
   align-items: center;
   text-align: center;
   cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
   animation: float-night 60s infinite alternate ease-in-out;
 }
 
@@ -626,27 +629,62 @@ body.night-mode-active .night-mode-overlay {
   100% { transform: translate(-15px, 8px); }
 }
 
+.night-clock-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 16px;
+}
+
 .night-clock {
   font-family: var(--font-display);
-  font-size: 7rem;
+  font-size: clamp(8.5rem, 16vw, 15rem);
   font-weight: 800;
   color: var(--night-color);
-  opacity: 0.5;
+  opacity: 0.85;
+  line-height: 0.88;
   letter-spacing: -0.04em;
-  text-shadow: 0 0 40px rgba(255, 157, 66, 0.25);
+  text-shadow: 0 0 50px rgba(255, 157, 66, 0.45);
+}
+
+.night-period {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 4.5vw, 4.2rem);
+  font-weight: 800;
+  color: var(--night-color);
+  opacity: 0.75;
+  text-transform: uppercase;
 }
 
 .night-date {
-  font-size: 1.5rem;
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  font-weight: 600;
   color: var(--night-color);
-  opacity: 0.38;
-  margin-top: 8px;
+  opacity: 0.65;
+  margin-top: 16px;
+  letter-spacing: -0.02em;
 }
 
 .night-ambient-hint {
-  font-size: 0.85rem;
-  color: rgba(255, 157, 66, 0.3);
-  margin-top: 24px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(255, 157, 66, 0.45);
+  margin-top: 36px;
+  letter-spacing: 0.02em;
+  padding: 8px 20px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 157, 66, 0.08);
+  border: 1px solid rgba(255, 157, 66, 0.18);
+}
+
+#nightModeBtn {
+  color: #ffb340;
+}
+
+#nightModeBtn:hover, #nightModeBtn:active {
+  background: rgba(255, 157, 66, 0.2);
+  border-color: #ff9d42;
+  color: #ff9d42;
 }
 
 /* ============================================================

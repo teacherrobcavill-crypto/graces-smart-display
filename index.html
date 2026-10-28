@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="css/style.css?v=2.2">
+  <link rel="stylesheet" href="css/style.css?v=2.3">
 </head>
 <body data-theme="pastel-sunset">
   <div id="app" class="dashboard-container">
@@ -122,9 +122,12 @@
     <!-- Night Mode / Bedtime Screen Overlay -->
     <div class="night-mode-overlay" id="nightModeOverlay">
       <div class="night-clock-container">
-        <div class="night-clock" id="nightClock">12:00</div>
+        <div class="night-clock-row">
+          <span class="night-clock" id="nightClock">12:00</span>
+          <span class="night-period" id="nightPeriod">PM</span>
+        </div>
         <div class="night-date" id="nightDate">Wednesday, 28 October</div>
-        <div class="night-ambient-hint">Tap anywhere to wake display</div>
+        <div class="night-ambient-hint">Tap anywhere to return to dashboard</div>
       </div>
     </div>
 
@@ -184,10 +187,10 @@
   </div>
 
   <!-- JavaScript Modules -->
-  <script src="js/clock.js?v=2.2"></script>
-  <script src="js/weather.js?v=2.2"></script>
-  <script src="js/calendar.js?v=2.2"></script>
-  <script src="js/settings.js?v=2.2"></script>
-  <script src="js/app.js?v=2.2"></script>
+  <script src="js/clock.js?v=2.3"></script>
+  <script src="js/weather.js?v=2.3"></script>
+  <script src="js/calendar.js?v=2.3"></script>
+  <script src="js/settings.js?v=2.3"></script>
+  <script src="js/app.js?v=2.3"></script>
 </body>
 </html>

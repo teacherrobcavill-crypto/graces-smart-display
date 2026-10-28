@@ -9,6 +9,8 @@ const ClockManager = {
   nightEndHour: 7,
   nightEndMinute: 0,
   autoNightEnabled: true,
+  _manualNightModeActive: false,
+  _userDismissedNightMode: false,
 
   init(options = {}) {
     this.is24Hour = options.is24Hour ?? false;
@@ -47,7 +49,12 @@ const ClockManager = {
 
     // Update night clock
     const nightClock = document.getElementById('nightClock');
+    const nightPeriod = document.getElementById('nightPeriod');
     if (nightClock) nightClock.textContent = formattedTime;
+    if (nightPeriod) {
+      nightPeriod.textContent = period;
+      nightPeriod.style.display = this.is24Hour ? 'none' : 'inline-block';
+    }
 
     // 2. Date string (e.g. Wednesday, 28 October)
     const options = { weekday: 'long', day: 'numeric', month: 'long' };
@@ -98,6 +105,8 @@ const ClockManager = {
   },
 
   checkNightSchedule(hours, minutes) {
+    if (this._manualNightModeActive) return;
+
     const current = hours * 60 + minutes;
     const start = this.nightStartHour * 60 + this.nightStartMinute; // e.g. 21:30 = 1290
     const end = this.nightEndHour * 60 + this.nightEndMinute;       // e.g. 07:00 = 420
@@ -106,14 +115,26 @@ const ClockManager = {
 
     if (isNight && !document.body.classList.contains('night-mode-active') && !this._userDismissedNightMode) {
       document.body.classList.add('night-mode-active');
-    } else if (!isNight && document.body.classList.contains('night-mode-active')) {
+    } else if (!isNight && document.body.classList.contains('night-mode-active') && !this._manualNightModeActive) {
       document.body.classList.remove('night-mode-active');
       this._userDismissedNightMode = false;
     }
   },
 
-  dismissNightModeTemporarily() {
+  enterNightMode() {
+    this._manualNightModeActive = true;
+    this._userDismissedNightMode = false;
+    document.body.classList.add('night-mode-active');
+    this.updateClock();
+  },
+
+  exitNightMode() {
+    this._manualNightModeActive = false;
     this._userDismissedNightMode = true;
     document.body.classList.remove('night-mode-active');
+  },
+
+  dismissNightModeTemporarily() {
+    this.exitNightMode();
   }
 };
