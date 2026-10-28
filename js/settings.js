@@ -12,10 +12,8 @@ const SettingsManager = {
     theme: 'pastel-sunset',
     is24Hour: false,
     shortcuts: [
-      { id: 'night', title: 'Bedtime', subtitle: 'Full Screen', icon: '🌙', type: 'night-fullscreen' },
-      { id: 'fullscreen', title: 'Fullscreen', subtitle: 'Split / Full', icon: '⛶', type: 'toggle-fullscreen' },
       { id: 'music', title: 'Amazon Music', subtitle: 'Open App', icon: '🎵', type: 'amazon-music' },
-      { id: 'calendar', title: 'Calendar', subtitle: 'Sync Live', icon: '🗓️', type: 'refresh-data' }
+      { id: 'calendar', title: 'Sync Schedule', subtitle: 'Refresh', icon: '🗓️', type: 'refresh-data' }
     ]
   },
 
@@ -33,8 +31,14 @@ const SettingsManager = {
       this.config = Object.assign({}, this.defaults);
     }
 
-    if (!this.config.shortcuts || !Array.isArray(this.config.shortcuts) || this.config.shortcuts.length === 0) {
+    if (!this.config.shortcuts || !Array.isArray(this.config.shortcuts)) {
       this.config.shortcuts = JSON.parse(JSON.stringify(this.defaults.shortcuts));
+    } else {
+      // Filter out any previous bedtime shortcut so it doesn't duplicate the top moon button
+      this.config.shortcuts = this.config.shortcuts.filter(s => s.type !== 'night-fullscreen');
+      if (this.config.shortcuts.length === 0) {
+        this.config.shortcuts = JSON.parse(JSON.stringify(this.defaults.shortcuts));
+      }
     }
 
     return this.config;
@@ -118,10 +122,9 @@ const SettingsManager = {
       <input type="text" class="title-input" value="${sc.title || ''}" placeholder="Title">
       <input type="text" class="sub-input" value="${sc.subtitle || ''}" placeholder="Subtitle">
       <select class="action-select">
-        <option value="night-fullscreen" ${sc.type === 'night-fullscreen' ? 'selected' : ''}>🌙 Bedtime (Full Screen)</option>
-        <option value="toggle-fullscreen" ${sc.type === 'toggle-fullscreen' ? 'selected' : ''}>⛶ Fullscreen Toggle</option>
         <option value="amazon-music" ${sc.type === 'amazon-music' ? 'selected' : ''}>🎵 Amazon Music App</option>
-        <option value="refresh-data" ${sc.type === 'refresh-data' ? 'selected' : ''}>🗓️ Refresh Schedule</option>
+        <option value="refresh-data" ${sc.type === 'refresh-data' ? 'selected' : ''}>🗓️ Sync Schedule & Weather</option>
+        <option value="toggle-fullscreen" ${sc.type === 'toggle-fullscreen' ? 'selected' : ''}>⛶ Fullscreen Toggle</option>
         <option value="url" ${isUrl ? 'selected' : ''}>🔗 Custom Web Link / App URL</option>
       </select>
       <input type="text" class="url-input" value="${sc.url || ''}" placeholder="https:// or app link" style="display: ${isUrl ? 'block' : 'none'};">
@@ -147,7 +150,7 @@ const SettingsManager = {
     const newSc = {
       id: 'custom-' + Date.now(),
       title: 'New Shortcut',
-      subtitle: 'Tap to Open',
+      subtitle: 'Open',
       icon: '⭐',
       type: 'url',
       url: 'https://'
@@ -207,7 +210,7 @@ const SettingsManager = {
     WeatherManager.updateLocationLabel();
     WeatherManager.fetchWeather();
 
-    // Update Shortcuts UI
+    // Update Shortcuts UI in top bar
     if (typeof ShortcutsManager !== 'undefined') {
       ShortcutsManager.render();
     }

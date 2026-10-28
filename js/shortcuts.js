@@ -1,9 +1,9 @@
 /**
  * Quick Shortcuts Engine for Grace's Galaxy Dashboard
- * Provides embedded one-tap actions (Bedtime Fullscreen, Fullscreen Toggle, Music, Calendar Refresh)
+ * Embedded into top navigation bar next to the Moon button
  */
 const ShortcutsManager = {
-  containerId: 'shortcutsGrid',
+  containerId: 'topShortcutsContainer',
 
   init() {
     this.render();
@@ -11,12 +11,10 @@ const ShortcutsManager = {
 
   getShortcuts() {
     const config = SettingsManager.load();
-    if (!config.shortcuts || !Array.isArray(config.shortcuts) || config.shortcuts.length === 0) {
+    if (!config.shortcuts || !Array.isArray(config.shortcuts)) {
       config.shortcuts = [
-        { id: 'night', title: 'Bedtime', subtitle: 'Full Screen', icon: '🌙', type: 'night-fullscreen' },
-        { id: 'fullscreen', title: 'Fullscreen', subtitle: 'Split / Full', icon: '⛶', type: 'toggle-fullscreen' },
         { id: 'music', title: 'Amazon Music', subtitle: 'Open App', icon: '🎵', type: 'amazon-music' },
-        { id: 'calendar', title: 'Calendar', subtitle: 'Sync Live', icon: '🗓️', type: 'refresh-data' }
+        { id: 'calendar', title: 'Sync Schedule', subtitle: 'Refresh', icon: '🗓️', type: 'refresh-data' }
       ];
       SettingsManager.save({ shortcuts: config.shortcuts });
     }
@@ -33,19 +31,12 @@ const ShortcutsManager = {
     shortcuts.forEach(item => {
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = `shortcut-btn shortcut-${item.id || 'custom'}`;
-      if (item.type === 'night-fullscreen') {
-        btn.classList.add('shortcut-night');
-      }
-
-      btn.setAttribute('data-action', item.type || 'url');
-      if (item.url) btn.setAttribute('data-url', item.url);
-      btn.title = `${item.title} (${item.subtitle || ''})`;
+      btn.className = `icon-btn top-shortcut-btn shortcut-${item.id || 'custom'}`;
+      btn.setAttribute('aria-label', item.title);
+      btn.title = item.title + (item.subtitle ? ` (${item.subtitle})` : '');
 
       btn.innerHTML = `
-        <span class="shortcut-btn-icon">${item.icon || '⚡'}</span>
-        <span class="shortcut-btn-label">${item.title}</span>
-        <span class="shortcut-btn-sub">${item.subtitle || ''}</span>
+        <span class="top-shortcut-icon">${item.icon || '⚡'}</span>
       `;
 
       btn.addEventListener('click', (e) => {
@@ -65,11 +56,6 @@ const ShortcutsManager = {
     }
 
     switch (item.type) {
-      case 'night-fullscreen':
-        showToast('Entering Bedtime Mode (Full Screen) 🌙');
-        enterNightMode(true);
-        break;
-
       case 'toggle-fullscreen':
         const willBeFs = !isFullscreen();
         toggleFullscreen();
