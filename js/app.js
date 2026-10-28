@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 7. Initialize Settings Modal
   SettingsManager.initModal();
 
-  // 8. Setup Night Mode Controls
+  // 8. Setup Night Mode Controls (Bedtime Fullscreen & Split-Screen Toggle)
   const nightModeBtn = document.getElementById('nightModeBtn');
   const nightOverlay = document.getElementById('nightModeOverlay');
   const nightExitBtn = document.getElementById('nightExitBtn');
@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.stopPropagation();
       if (document.body.classList.contains('night-mode-active')) {
         exitNightMode(true);
+        showToast('Returned to split view ☀️');
       } else {
         showToast('Entering Bedtime Mode (Full Screen) 🌙');
         enterNightMode(true);
@@ -52,25 +53,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Exit button inside the night mode overlay
-  if (nightExitBtn) {
-    nightExitBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      exitNightMode(true);
-      showToast('Woke display - returned to split view ☀️');
-    });
-  }
-
-  // Tapping anywhere on night screen temporarily wakes it up for 30 seconds
+  // Tapping anywhere in full screen night mode immediately returns to split saved mode
   if (nightOverlay) {
     nightOverlay.addEventListener('click', (e) => {
-      if (e.target.closest('#nightExitBtn')) return;
-      ClockManager.dismissNightModeTemporarily();
-      showToast('Waking screen for 30s ⏰');
-      setTimeout(() => {
-        const now = new Date();
-        ClockManager.checkNightSchedule(now.getHours(), now.getMinutes());
-      }, 30000);
+      e.stopPropagation();
+      exitNightMode(true);
+      showToast('Returned to split view ☀️');
     });
   }
 
