@@ -3,7 +3,7 @@
  * - Continuous "Alexa" wake-word detection
  * - Echo Show Cyan/Blue glowing border & bottom lightbar
  * - Two-tone Echo chime sound via Web Audio API
- * - 100% In-Screen Execution (NEVER navigates away or opens Play Store)
+ * - Robust user-gesture activation & automatic recovery
  */
 const AlexaManager = {
   recognition: null,
@@ -11,6 +11,7 @@ const AlexaManager = {
   isWakeWordActive: false,
   audioContext: null,
   glowTimeout: null,
+  hasStarted: false,
 
   jokes: [
     "Why did the music teacher go to jail? Because she got caught with too many sharp objects!",
@@ -24,8 +25,20 @@ const AlexaManager = {
   init() {
     this.initAudioContext();
     this.bindButtons();
-    this.bindPromptChips();
-    this.startContinuousListening();
+
+    // Browser security requires a user interaction to start speech recognition reliably
+    const startOnFirstTap = () => {
+      this.initSpeechEngine();
+      this.startListening();
+      document.removeEventListener('click', startOnFirstTap);
+      document.removeEventListener('touchstart', startOnFirstTap);
+    };
+    document.addEventListener('click', startOnFirstTap, { once: true });
+    document.addEventListener('touchstart', startOnFirstTap, { once: true });
+
+    // Also try starting immediately in case browser allows it (e.g. Fully Kiosk)
+    this.initSpeechEngine();
+    this.startListening();
   },
 
   initAudioContext() {
@@ -39,9 +52,6 @@ const AlexaManager = {
     }
   },
 
-  /**
-   * Signature Echo Show Two-Tone Wake Chime (D5 -> A5)
-   */
   playEchoChime() {
     try {
       if (!this.audioContext) {
@@ -76,25 +86,30 @@ const AlexaManager = {
       osc2.start(now + 0.08);
       osc2.stop(now + 0.28);
     } catch (err) {
-      console.debug('Chime audio waiting for user gesture.');
+      console.debug('Chime audio waiting for touch.');
     }
   },
 
-  /**
-   * Continuous Speech Recognition (Listens for "Alexa" in bedroom)
-   */
-  startContinuousListening() {
+  initSpeechEngine() {
     const SpeechClass = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechClass) {
       console.warn('SpeechRecognition API not supported on this browser.');
       return;
     }
 
+    if (this.recognition) return;
+
     try {
       this.recognition = new SpeechClass();
       this.recognition.continuous = true;
       this.recognition.interimResults = true;
       this.recognition.lang = 'en-GB';
+
+      this.recognition.onstart = () => {
+        this.isListening = true;
+        this.hasStarted = true;
+        console.log('Alexa voice listener is active and listening for "Alexa"');
+      };
 
       this.recognition.onresult = (event) => {
         let interim = '';
@@ -110,33 +125,40 @@ const AlexaManager = {
       };
 
       this.recognition.onerror = (e) => {
-        // Silently restart on timeout or quiet room
-        if (e.error !== 'no-speech') {
-          console.debug('Voice listener event:', e.error);
+        console.debug('Voice engine event:', e.error);
+        if (e.error === 'not-allowed') {
+          this.isListening = false;
         }
       };
 
       this.recognition.onend = () => {
-        // Automatically restart speech loop so it stays always-listening
+        this.isListening = false;
+        // Automatically restart speech loop so it remains always listening
         setTimeout(() => {
-          try {
-            this.recognition.start();
-          } catch (e) {
-            // Already active
+          if (this.hasStarted) {
+            this.startListening();
           }
-        }, 500);
+        }, 600);
       };
-
-      // Start the listener
-      this.recognition.start();
     } catch (err) {
-      console.debug('Voice loop restart delayed:', err);
+      console.warn('Speech engine init error:', err);
     }
   },
 
-  /**
-   * Process incoming speech: Detects "Alexa" wake word
-   */
+  startListening(forceUserGesture = false) {
+    if (!this.recognition) {
+      this.initSpeechEngine();
+    }
+    if (!this.recognition) return;
+
+    try {
+      this.recognition.start();
+      this.isListening = true;
+    } catch (e) {
+      // If already started, that's fine
+    }
+  },
+
   processSpeech(text, isFinal) {
     const lower = text.toLowerCase();
 
@@ -167,76 +189,36 @@ const AlexaManager = {
     }
   },
 
-  /**
-   * Turn ON the Echo Show Blue Glowing Frame & Bottom Lightbar
-   */
   activateEchoGlow(promptText = 'Listening...') {
     document.body.classList.add('alexa-active');
     const hudText = document.getElementById('echoVoiceText');
     if (hudText) hudText.textContent = promptText;
 
     if (this.glowTimeout) clearTimeout(this.glowTimeout);
-    // Keep glow on for at least 6 seconds if waiting for speech
     this.glowTimeout = setTimeout(() => {
       this.deactivateEchoGlow();
     }, 6000);
   },
 
-  /**
-   * Turn OFF the Echo Show Blue Glowing Frame
-   */
   deactivateEchoGlow() {
     document.body.classList.remove('alexa-active');
     this.isWakeWordActive = false;
   },
 
-  /**
-   * Bind Tap to Talk Button
-   */
   bindButtons() {
-    const tapBtn = document.getElementById('alexaTapBtn');
-    if (!tapBtn) return;
-
-    tapBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.playEchoChime();
-      this.activateEchoGlow('Listening... Say a command');
-      this.isWakeWordActive = true;
-    });
-  },
-
-  /**
-   * Bind Prompt Chips
-   */
-  bindPromptChips() {
-    const chips = document.querySelectorAll('.prompt-chip');
-    chips.forEach(chip => {
-      chip.addEventListener('click', (e) => {
+    const topAlexaBtn = document.getElementById('topAlexaBtn');
+    if (topAlexaBtn) {
+      topAlexaBtn.addEventListener('click', (e) => {
         e.stopPropagation();
+        this.initSpeechEngine();
+        this.startListening(true);
         this.playEchoChime();
-        this.activateEchoGlow();
-
-        const query = chip.getAttribute('data-query');
-        const action = chip.getAttribute('data-action');
-
-        setTimeout(() => {
-          if (query) {
-            this.executeCommand(`play ${query}`);
-          } else if (action === 'skip') {
-            this.executeCommand('skip');
-          } else if (action === 'alarm') {
-            this.executeCommand('set an alarm for 7:30 AM');
-          } else if (action === 'weather') {
-            this.executeCommand('what is the weather');
-          }
-        }, 500);
+        this.activateEchoGlow('Listening... Say a command');
+        this.isWakeWordActive = true;
       });
-    });
+    }
   },
 
-  /**
-   * Execute voice commands 100% in-screen (No navigation!)
-   */
   executeCommand(rawCommand) {
     const cmd = rawCommand.toLowerCase().trim();
     const hudText = document.getElementById('echoVoiceText');
@@ -300,7 +282,7 @@ const AlexaManager = {
       return;
     }
 
-    // 6. TIME
+    // 7. TIME
     if (cmd.includes('time is it') || cmd.includes('what time')) {
       const now = new Date();
       const timeStr = now.toLocaleTimeString('en-GB', { hour: 'numeric', minute: '2-digit' });
@@ -309,7 +291,7 @@ const AlexaManager = {
       return;
     }
 
-    // 7. JOKE
+    // 8. JOKE
     if (cmd.includes('joke')) {
       const randomJoke = this.jokes[Math.floor(Math.random() * this.jokes.length)];
       this.speak(randomJoke);
@@ -317,7 +299,7 @@ const AlexaManager = {
       return;
     }
 
-    // 8. BEDTIME / GOODNIGHT
+    // 9. BEDTIME / GOODNIGHT
     if (cmd.includes('bedtime') || cmd.includes('goodnight') || cmd.includes('sleep sounds')) {
       document.body.classList.add('night-mode-active');
       MusicManager.playInScreenAudio('bedtime');
@@ -326,7 +308,7 @@ const AlexaManager = {
       return;
     }
 
-    // 9. PLAY MUSIC / POP HITS / LOFI / DISNEY / ON AMAZON MUSIC
+    // 10. PLAY MUSIC
     if (cmd.startsWith('play') || cmd.includes('music') || cmd.includes('hits') || cmd.includes('songs') || cmd.includes('track')) {
       let songTitle = cmd.replace(/^play/i, '')
                          .replace(/on amazon music/i, '')
@@ -341,29 +323,12 @@ const AlexaManager = {
       setTimeout(() => this.deactivateEchoGlow(), 3000);
       return;
     }
-      if (!songTitle) songTitle = 'Pop Hits';
 
-      MusicManager.playInScreenAudio(songTitle);
-      this.speak(`Playing ${songTitle}.`);
-      setTimeout(() => this.deactivateEchoGlow(), 3000);
-      return;
-    }
-
-    // 7. ALARM
-    if (cmd.includes('alarm')) {
-      this.speak("Alarm set for 7:30 AM.");
-      setTimeout(() => this.deactivateEchoGlow(), 2500);
-      return;
-    }
-
-    // Fallback: Friendly Echo answer
+    // Fallback
     this.speak(`I heard: ${cmd}`);
     setTimeout(() => this.deactivateEchoGlow(), 2500);
   },
 
-  /**
-   * Speak response in clear UK English voice
-   */
   speak(text) {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();

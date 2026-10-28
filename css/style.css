@@ -192,6 +192,32 @@ html, body {
   color: var(--jbl-color);
 }
 
+.alexa-top-pill {
+  cursor: pointer;
+  background: rgba(0, 202, 255, 0.12);
+  border-color: rgba(0, 202, 255, 0.35);
+  color: #00CAFF;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alexa-top-pill:hover, .alexa-top-pill:active {
+  background: rgba(0, 202, 255, 0.25);
+  transform: scale(1.05);
+  border-color: #00CAFF;
+  box-shadow: 0 0 15px rgba(0, 202, 255, 0.4);
+}
+
+.alexa-top-ring {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid #00CAFF;
+  animation: ring-pulse 1.5s infinite alternate;
+}
+
 .icon-btn {
   width: 44px;
   height: 44px;
