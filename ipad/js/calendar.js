@@ -8,41 +8,38 @@ var CalendarManager = {
   init: function() {
     this.loadCalendar();
     var self = this;
+    // Refresh calendar every 5 minutes to pick up additions/deletions
     setInterval(function() {
       self.loadCalendar();
-    }, 30 * 60 * 1000);
+    }, 5 * 60 * 1000);
   },
 
   loadCalendar: function() {
     var self = this;
 
-    // 1. Check for directly embedded data (instant, 100% reliable on old iOS)
+    // 1. Render immediately if already present
     if (window.EMBEDDED_FAMILY_EVENTS && window.EMBEDDED_FAMILY_EVENTS.length > 0) {
       this.events = window.EMBEDDED_FAMILY_EVENTS;
       this.processEvents();
-      return;
     }
 
-    // 2. Fallback to XHR
-    try {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', '../data/family.json', true);
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-          if (xhr.status >= 200 && xhr.status < 300) {
-            try {
-              self.events = JSON.parse(xhr.responseText);
-              self.processEvents();
-            } catch (e) {
-              console.warn('Calendar JSON parse error', e);
-            }
-          }
-        }
-      };
-      xhr.send();
-    } catch (err) {
-      console.warn('Calendar XHR error:', err);
+    // 2. Dynamically reload fresh data.js to catch any deleted/added events
+    var scriptId = 'dynamicCalendarDataScript';
+    var oldScript = document.getElementById(scriptId);
+    if (oldScript && oldScript.parentNode) {
+      oldScript.parentNode.removeChild(oldScript);
     }
+
+    var script = document.createElement('script');
+    script.id = scriptId;
+    script.src = 'js/data.js?t=' + (new Date()).getTime();
+    script.onload = function() {
+      if (window.EMBEDDED_FAMILY_EVENTS) {
+        self.events = window.EMBEDDED_FAMILY_EVENTS;
+        self.processEvents();
+      }
+    };
+    document.body.appendChild(script);
   },
 
   processEvents: function() {

@@ -11,14 +11,14 @@ const CalendarManager = {
 
   init() {
     this.loadCalendar();
-    // Refresh calendar view every 30 minutes
-    setInterval(() => this.loadCalendar(), 30 * 60 * 1000);
+    // Refresh calendar view every 5 minutes
+    setInterval(() => this.loadCalendar(), 5 * 60 * 1000);
   },
 
   async loadCalendar() {
     try {
-      // 1. Try loading pre-parsed family.json
-      const response = await fetch('data/family.json');
+      // 1. Try loading pre-parsed family.json with cache buster
+      const response = await fetch('data/family.json?t=' + Date.now());
       if (response.ok) {
         this.events = await response.json();
         this.processEvents();
@@ -29,8 +29,8 @@ const CalendarManager = {
     }
 
     try {
-      // 2. Fallback to family.ics
-      const icsRes = await fetch('data/family.ics');
+      // 2. Fallback to family.ics with cache buster
+      const icsRes = await fetch('data/family.ics?t=' + Date.now());
       if (icsRes.ok) {
         const icsText = await icsRes.text();
         this.parseICS(icsText);
