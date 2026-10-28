@@ -71,6 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (MusicManager.audioContext && MusicManager.audioContext.state === 'suspended') {
       MusicManager.audioContext.resume();
     }
+    if (typeof AlexaManager !== 'undefined' && AlexaManager.audioContext && AlexaManager.audioContext.state === 'suspended') {
+      AlexaManager.audioContext.resume();
+    }
     document.removeEventListener('click', unlockAudio);
     document.removeEventListener('touchstart', unlockAudio);
   };

@@ -493,6 +493,25 @@ html, body {
   color: var(--text-muted);
 }
 
+.audio-live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--amazon-music-color);
+  background: rgba(0, 202, 255, 0.1);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #00CAFF;
+  border-radius: 50%;
+  animation: pulse-ring 2s infinite ease-in-out;
+}
+
 .open-app-btn {
   display: flex;
   align-items: center;
@@ -545,6 +564,158 @@ html, body {
 
 .playlist-btn .btn-icon {
   font-size: 1.4rem;
+}
+
+/* ============================================================
+   Echo Show Blue Cyan Glowing Frame & Light Bar
+   ============================================================ */
+.echo-glow-border {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  box-shadow: inset 0 0 50px 16px rgba(0, 202, 255, 0.9), inset 0 0 100px 35px rgba(0, 100, 255, 0.5);
+  pointer-events: none;
+  z-index: 150;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.echo-bottom-lightbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 8px;
+  background: linear-gradient(90deg, #0051ff 0%, #00caff 35%, #ffffff 50%, #00caff 65%, #0051ff 100%);
+  background-size: 200% 100%;
+  box-shadow: 0 -4px 30px 10px rgba(0, 202, 255, 0.9), 0 -8px 60px 20px rgba(0, 81, 255, 0.7);
+  pointer-events: none;
+  z-index: 151;
+  opacity: 0;
+  animation: echo-light-sweep 2s infinite linear;
+  transition: opacity 0.35s ease;
+}
+
+@keyframes echo-light-sweep {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+body.alexa-active .echo-glow-border,
+body.alexa-active .echo-bottom-lightbar {
+  opacity: 1;
+}
+
+/* Floating Echo transcription banner on screen */
+.echo-voice-hud {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(40px);
+  background: rgba(12, 16, 32, 0.94);
+  border: 1.5px solid rgba(0, 202, 255, 0.75);
+  box-shadow: 0 12px 45px rgba(0, 0, 0, 0.75), 0 0 30px rgba(0, 202, 255, 0.45);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 14px 32px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 160;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.alexa-active .echo-voice-hud {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.echo-hud-ring {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid #00CAFF;
+  animation: ring-pulse 1s infinite alternate;
+}
+
+@keyframes ring-pulse {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  100% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 12px #00CAFF; }
+}
+
+.echo-hud-text {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* In-Screen Audio Player Bar */
+.now-playing-bar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 202, 255, 0.1);
+  border: 1px solid rgba(0, 202, 255, 0.3);
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  margin-top: 14px;
+}
+
+.now-playing-bar.is-active {
+  display: flex;
+}
+
+.now-playing-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.now-playing-icon {
+  font-size: 1.5rem;
+  animation: pulse-ring 2s infinite ease-in-out;
+}
+
+.now-playing-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #ffffff;
+}
+
+.now-playing-subtitle {
+  font-size: 0.78rem;
+  color: var(--amazon-music-color);
+}
+
+.now-playing-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.playback-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-radius: var(--radius-full);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.playback-btn:hover {
+  background: var(--amazon-music-color);
+  color: #000;
 }
 
 /* ============================================================

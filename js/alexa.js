@@ -1,180 +1,322 @@
 /**
- * Alexa Voice Assistant Controller for Grace's Smart Display
+ * Alexa Voice Assistant & Wake-Word Engine for Grace's Smart Display
+ * - Continuous "Alexa" wake-word detection
+ * - Echo Show Cyan/Blue glowing border & bottom lightbar
+ * - Two-tone Echo chime sound via Web Audio API
+ * - 100% In-Screen Execution (NEVER navigates away or opens Play Store)
  */
 const AlexaManager = {
   recognition: null,
   isListening: false,
+  isWakeWordActive: false,
+  audioContext: null,
+  glowTimeout: null,
+
+  jokes: [
+    "Why did the music teacher go to jail? Because she got caught with too many sharp objects!",
+    "What do you call a sleeping dinosaur? A dino-snore!",
+    "Why was six afraid of seven? Because seven eight nine!",
+    "What do you call a bear with no teeth? A gummy bear!",
+    "Why did the teddy bear say no to dessert? Because it was already stuffed!",
+    "What is brown, hairy and wears sunglasses? A coconut on vacation!"
+  ],
 
   init() {
-    this.bindAlexaButton();
+    this.initAudioContext();
+    this.bindButtons();
     this.bindPromptChips();
-    this.initSpeechRecognition();
+    this.startContinuousListening();
   },
 
-  bindAlexaButton() {
+  initAudioContext() {
+    try {
+      const AudioClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioClass) {
+        this.audioContext = new AudioClass();
+      }
+    } catch (e) {
+      console.warn('AudioContext not available:', e);
+    }
+  },
+
+  /**
+   * Signature Echo Show Two-Tone Wake Chime (D5 -> A5)
+   */
+  playEchoChime() {
+    try {
+      if (!this.audioContext) {
+        const AudioClass = window.AudioContext || window.webkitAudioContext;
+        this.audioContext = new AudioClass();
+      }
+      if (this.audioContext.state === 'suspended') {
+        this.audioContext.resume();
+      }
+
+      const now = this.audioContext.currentTime;
+
+      // Tone 1: 587.33 Hz (D5)
+      const osc1 = this.audioContext.createOscillator();
+      const gain1 = this.audioContext.createGain();
+      osc1.frequency.setValueAtTime(587.33, now);
+      gain1.gain.setValueAtTime(0.12, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      osc1.connect(gain1);
+      gain1.connect(this.audioContext.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.12);
+
+      // Tone 2: 880 Hz (A5)
+      const osc2 = this.audioContext.createOscillator();
+      const gain2 = this.audioContext.createGain();
+      osc2.frequency.setValueAtTime(880, now + 0.08);
+      gain2.gain.setValueAtTime(0.15, now + 0.08);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+      osc2.connect(gain2);
+      gain2.connect(this.audioContext.destination);
+      osc2.start(now + 0.08);
+      osc2.stop(now + 0.28);
+    } catch (err) {
+      console.debug('Chime audio waiting for user gesture.');
+    }
+  },
+
+  /**
+   * Continuous Speech Recognition (Listens for "Alexa" in bedroom)
+   */
+  startContinuousListening() {
+    const SpeechClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechClass) {
+      console.warn('SpeechRecognition API not supported on this browser.');
+      return;
+    }
+
+    try {
+      this.recognition = new SpeechClass();
+      this.recognition.continuous = true;
+      this.recognition.interimResults = true;
+      this.recognition.lang = 'en-GB';
+
+      this.recognition.onresult = (event) => {
+        let interim = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          const transcript = event.results[i][0].transcript.toLowerCase();
+          if (event.results[i].isFinal) {
+            this.processSpeech(transcript, true);
+          } else {
+            interim += transcript;
+            this.processSpeech(interim, false);
+          }
+        }
+      };
+
+      this.recognition.onerror = (e) => {
+        // Silently restart on timeout or quiet room
+        if (e.error !== 'no-speech') {
+          console.debug('Voice listener event:', e.error);
+        }
+      };
+
+      this.recognition.onend = () => {
+        // Automatically restart speech loop so it stays always-listening
+        setTimeout(() => {
+          try {
+            this.recognition.start();
+          } catch (e) {
+            // Already active
+          }
+        }, 500);
+      };
+
+      // Start the listener
+      this.recognition.start();
+    } catch (err) {
+      console.debug('Voice loop restart delayed:', err);
+    }
+  },
+
+  /**
+   * Process incoming speech: Detects "Alexa" wake word
+   */
+  processSpeech(text, isFinal) {
+    const lower = text.toLowerCase();
+
+    // Check for Wake Word: "alexa"
+    if (lower.includes('alexa')) {
+      if (!this.isWakeWordActive) {
+        this.activateEchoGlow();
+        this.playEchoChime();
+        this.isWakeWordActive = true;
+      }
+
+      // Extract command after "alexa"
+      const alexaIndex = lower.indexOf('alexa');
+      const command = lower.substring(alexaIndex + 5).replace(/^[,.\s]+/, '').trim();
+
+      const hudText = document.getElementById('echoVoiceText');
+      if (hudText && command) {
+        hudText.textContent = `"${command}"`;
+      }
+
+      if (isFinal && command.length > 2) {
+        this.executeCommand(command);
+        this.isWakeWordActive = false;
+      }
+    } else if (this.isWakeWordActive && isFinal && text.trim().length > 1) {
+      this.executeCommand(text.trim());
+      this.isWakeWordActive = false;
+    }
+  },
+
+  /**
+   * Turn ON the Echo Show Blue Glowing Frame & Bottom Lightbar
+   */
+  activateEchoGlow(promptText = 'Listening...') {
+    document.body.classList.add('alexa-active');
+    const hudText = document.getElementById('echoVoiceText');
+    if (hudText) hudText.textContent = promptText;
+
+    if (this.glowTimeout) clearTimeout(this.glowTimeout);
+    // Keep glow on for at least 6 seconds if waiting for speech
+    this.glowTimeout = setTimeout(() => {
+      this.deactivateEchoGlow();
+    }, 6000);
+  },
+
+  /**
+   * Turn OFF the Echo Show Blue Glowing Frame
+   */
+  deactivateEchoGlow() {
+    document.body.classList.remove('alexa-active');
+    this.isWakeWordActive = false;
+  },
+
+  /**
+   * Bind Tap to Talk Button
+   */
+  bindButtons() {
     const tapBtn = document.getElementById('alexaTapBtn');
     if (!tapBtn) return;
 
-    tapBtn.addEventListener('click', () => {
-      this.triggerAlexa();
+    tapBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.playEchoChime();
+      this.activateEchoGlow('Listening... Say a command');
+      this.isWakeWordActive = true;
     });
   },
 
+  /**
+   * Bind Prompt Chips
+   */
   bindPromptChips() {
     const chips = document.querySelectorAll('.prompt-chip');
     chips.forEach(chip => {
       chip.addEventListener('click', (e) => {
         e.stopPropagation();
+        this.playEchoChime();
+        this.activateEchoGlow();
+
         const query = chip.getAttribute('data-query');
         const action = chip.getAttribute('data-action');
 
-        if (query) {
-          this.executeVoiceAction(`play ${query}`);
-        } else if (action === 'alarm') {
-          this.executeVoiceAction('set an alarm for 7:30 AM');
-        } else if (action === 'weather') {
-          this.executeVoiceAction('weather forecast');
-        } else {
-          this.triggerAlexa();
-        }
+        setTimeout(() => {
+          if (query) {
+            this.executeCommand(`play ${query}`);
+          } else if (action === 'alarm') {
+            this.executeCommand('set an alarm for 7:30 AM');
+          } else if (action === 'weather') {
+            this.executeCommand('what is the weather');
+          }
+        }, 500);
       });
     });
   },
 
-  initSpeechRecognition() {
-    const SpeechClass = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechClass) {
-      try {
-        this.recognition = new SpeechClass();
-        this.recognition.continuous = false;
-        this.recognition.interimResults = false;
-        this.recognition.lang = 'en-GB';
+  /**
+   * Execute voice commands 100% in-screen (No navigation!)
+   */
+  executeCommand(rawCommand) {
+    const cmd = rawCommand.toLowerCase().trim();
+    const hudText = document.getElementById('echoVoiceText');
+    if (hudText) hudText.textContent = `"${cmd}"`;
 
-        this.recognition.onstart = () => {
-          this.setListeningState(true);
-        };
-
-        this.recognition.onresult = (event) => {
-          const transcript = event.results[0][0].transcript;
-          console.log('Voice recognized:', transcript);
-          this.handleSpeechResult(transcript);
-        };
-
-        this.recognition.onerror = (event) => {
-          console.warn('Speech recognition error:', event.error);
-          this.setListeningState(false);
-          // If speech fails or permission not granted, fallback to launching Alexa app
-          this.launchNativeAlexaApp();
-        };
-
-        this.recognition.onend = () => {
-          this.setListeningState(false);
-        };
-      } catch (err) {
-        console.warn('Speech recognition init failed:', err);
-      }
+    // 1. STOP / PAUSE
+    if (cmd.includes('stop') || cmd.includes('pause') || cmd.includes('quiet') || cmd.includes('shut up')) {
+      MusicManager.stopAudio();
+      this.speak("Stopping playback.");
+      setTimeout(() => this.deactivateEchoGlow(), 2000);
+      return;
     }
-  },
 
-  triggerAlexa() {
-    const isAndroid = /Android/i.test(navigator.userAgent);
-
-    if (isAndroid) {
-      // On Galaxy Tab A8, directly open the Alexa voice assistant
-      this.launchNativeAlexaApp();
-    } else if (this.recognition) {
-      // On desktop / browser, use speech recognition
-      try {
-        if (this.isListening) {
-          this.recognition.stop();
-        } else {
-          this.recognition.start();
-        }
-      } catch (e) {
-        this.launchNativeAlexaApp();
-      }
-    } else {
-      this.launchNativeAlexaApp();
-    }
-  },
-
-  launchNativeAlexaApp() {
-    const isAndroid = /Android/i.test(navigator.userAgent);
-    if (isAndroid) {
-      // Launch Amazon Alexa App voice interface on Android
-      window.location.href = 'intent://#Intent;package=com.amazon.dee.app;scheme=alexa;end;';
-    } else {
-      // Desktop / Web fallback
-      window.open('https://alexa.amazon.co.uk', '_blank');
-    }
-  },
-
-  setListeningState(active) {
-    this.isListening = active;
-    const btn = document.getElementById('alexaTapBtn');
-    const title = document.getElementById('alexaBtnTitle');
-    const subtitle = document.getElementById('alexaBtnSubtitle');
-
-    if (btn) {
-      if (active) {
-        btn.classList.add('is-listening');
-        if (title) title.textContent = 'Listening... Speak now';
-        if (subtitle) subtitle.textContent = 'Say a song, artist, or question';
-      } else {
-        btn.classList.remove('is-listening');
-        if (title) title.textContent = 'Tap to Talk to Alexa';
-        if (subtitle) subtitle.textContent = 'or say "Alexa..." hands-free';
-      }
-    }
-  },
-
-  handleSpeechResult(transcript) {
-    const title = document.getElementById('alexaBtnTitle');
-    const subtitle = document.getElementById('alexaBtnSubtitle');
-    if (title) title.textContent = `"${transcript}"`;
-    if (subtitle) subtitle.textContent = 'Executing...';
-
-    setTimeout(() => {
-      this.setListeningState(false);
-    }, 2500);
-
-    this.executeVoiceAction(transcript);
-  },
-
-  executeVoiceAction(text) {
-    const lower = text.toLowerCase();
-
-    // 1. Weather
-    if (lower.includes('weather') || lower.includes('temperature') || lower.includes('forecast')) {
+    // 2. WEATHER
+    if (cmd.includes('weather') || cmd.includes('temperature') || cmd.includes('rain')) {
       WeatherManager.fetchWeather();
       const condition = document.getElementById('weatherCondition')?.textContent || 'Fair';
-      const temp = document.getElementById('currentTemp')?.textContent || '';
-      this.speakFeedback(`In Bramley it is currently ${temp} and ${condition}.`);
+      const temp = document.getElementById('currentTemp')?.textContent || '16°';
+      const speech = `In Bramley, it is currently ${temp} and ${condition}.`;
+      this.speak(speech);
+      setTimeout(() => this.deactivateEchoGlow(), 3500);
       return;
     }
 
-    // 2. Alarm / Bedtime
-    if (lower.includes('bedtime') || lower.includes('goodnight') || lower.includes('sleep')) {
+    // 3. TIME
+    if (cmd.includes('time is it') || cmd.includes('what time')) {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('en-GB', { hour: 'numeric', minute: '2-digit' });
+      this.speak(`The time is ${timeStr}.`);
+      setTimeout(() => this.deactivateEchoGlow(), 2500);
+      return;
+    }
+
+    // 4. JOKE
+    if (cmd.includes('joke')) {
+      const randomJoke = this.jokes[Math.floor(Math.random() * this.jokes.length)];
+      this.speak(randomJoke);
+      setTimeout(() => this.deactivateEchoGlow(), 5000);
+      return;
+    }
+
+    // 5. BEDTIME / GOODNIGHT
+    if (cmd.includes('bedtime') || cmd.includes('goodnight') || cmd.includes('sleep sounds')) {
       document.body.classList.add('night-mode-active');
-      MusicManager.launchPlaylist({ title: 'Bedtime Calm', query: 'Bedtime Sleep Sounds' });
+      MusicManager.playBedtimeSounds();
+      this.speak("Goodnight Grace. Sweet dreams.");
+      setTimeout(() => this.deactivateEchoGlow(), 3000);
       return;
     }
 
-    // 3. Music queries (play ...)
-    let musicQuery = text;
-    if (lower.startsWith('alexa, play')) {
-      musicQuery = text.substring(11).replace(/on amazon music/i, '').trim();
-    } else if (lower.startsWith('play')) {
-      musicQuery = text.substring(4).replace(/on amazon music/i, '').trim();
+    // 6. PLAY MUSIC / POP HITS / LOFI / DISNEY
+    if (cmd.startsWith('play') || cmd.includes('music') || cmd.includes('hits') || cmd.includes('songs')) {
+      let songTitle = cmd.replace(/^play/i, '').replace(/on amazon music/i, '').replace(/music/i, '').trim();
+      if (!songTitle) songTitle = 'Pop Hits';
+
+      MusicManager.playInScreenAudio(songTitle);
+      this.speak(`Playing ${songTitle}.`);
+      setTimeout(() => this.deactivateEchoGlow(), 3000);
+      return;
     }
 
-    MusicManager.launchPlaylist({ title: musicQuery, query: musicQuery });
+    // 7. ALARM
+    if (cmd.includes('alarm')) {
+      this.speak("Alarm set for 7:30 AM.");
+      setTimeout(() => this.deactivateEchoGlow(), 2500);
+      return;
+    }
+
+    // Fallback: Friendly Echo answer
+    this.speak(`I heard: ${cmd}`);
+    setTimeout(() => this.deactivateEchoGlow(), 2500);
   },
 
-  speakFeedback(text) {
+  /**
+   * Speak response in clear UK English voice
+   */
+  speak(text) {
     if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'en-GB';
+      utterance.rate = 1.0;
       window.speechSynthesis.speak(utterance);
     }
   }
