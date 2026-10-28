@@ -31,7 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // 6. Initialize Settings Modal
   SettingsManager.initModal();
 
-  // 7. Setup Night Mode Controls
+  // 7. Initialize Alexa Voice Controller
+  if (typeof AlexaManager !== 'undefined') {
+    AlexaManager.init();
+  }
+
+  // 8. Setup Night Mode Controls
   const nightModeBtn = document.getElementById('nightModeBtn');
   const nightOverlay = document.getElementById('nightModeOverlay');
 

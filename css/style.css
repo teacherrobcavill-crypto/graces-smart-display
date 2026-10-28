@@ -276,24 +276,51 @@ html, body {
 
 /* Alexa Companion Box */
 .alexa-companion {
-  margin-top: 24px;
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(0, 202, 255, 0.25);
+  margin-top: 18px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 202, 255, 0.3);
   border-radius: var(--radius-md);
-  padding: 18px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.alexa-header {
+.alexa-tap-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 14px;
+  background: linear-gradient(135deg, rgba(0, 202, 255, 0.15) 0%, rgba(0, 150, 255, 0.08) 100%);
+  border: 1.5px solid rgba(0, 202, 255, 0.4);
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  width: 100%;
+  text-align: left;
 }
 
-.alexa-icon-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.alexa-tap-btn:hover, .alexa-tap-btn:active {
+  background: linear-gradient(135deg, rgba(0, 202, 255, 0.3) 0%, rgba(0, 150, 255, 0.2) 100%);
+  border-color: #00CAFF;
+  transform: translateY(-2px);
+  box-shadow: 0 0 24px rgba(0, 202, 255, 0.35);
+}
+
+.alexa-tap-btn.is-listening {
+  background: linear-gradient(135deg, rgba(0, 202, 255, 0.4) 0%, rgba(0, 255, 200, 0.3) 100%);
+  border-color: #00ffc4;
+  animation: listening-pulse 1.2s infinite alternate;
+}
+
+@keyframes listening-pulse {
+  0% { box-shadow: 0 0 10px rgba(0, 202, 255, 0.4); }
+  100% { box-shadow: 0 0 35px rgba(0, 255, 200, 0.8); }
+}
+
+.alexa-circle-icon {
+  flex-shrink: 0;
   animation: pulse-ring 2.5s infinite ease-in-out;
 }
 
@@ -303,12 +330,21 @@ html, body {
   100% { transform: scale(0.96); opacity: 0.8; }
 }
 
-.alexa-title {
-  font-size: 0.95rem;
+.alexa-btn-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.alexa-action-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
   font-weight: 700;
+  color: #ffffff;
+}
+
+.alexa-action-subtitle {
+  font-size: 0.8rem;
   color: var(--amazon-music-color);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .alexa-prompts {
@@ -321,9 +357,21 @@ html, body {
   background: rgba(255, 255, 255, 0.05);
   padding: 10px 14px;
   border-radius: var(--radius-sm);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-left: 3px solid var(--amazon-music-color);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.prompt-chip:hover, .prompt-chip:active {
+  background: rgba(0, 202, 255, 0.15);
+  color: #ffffff;
+  border-color: rgba(0, 202, 255, 0.4);
+  transform: translateX(4px);
 }
 
 /* Right Column */
@@ -510,15 +558,16 @@ html, body {
   height: 100vh;
   background-color: #000000;
   z-index: 100;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.5s ease;
 }
 
 body.night-mode-active .night-mode-overlay {
+  display: flex;
   opacity: 1;
   pointer-events: auto;
 }
@@ -528,6 +577,7 @@ body.night-mode-active .night-mode-overlay {
   flex-direction: column;
   align-items: center;
   text-align: center;
+  cursor: pointer;
   animation: float-night 60s infinite alternate ease-in-out;
 }
 
@@ -542,21 +592,21 @@ body.night-mode-active .night-mode-overlay {
   font-size: 8rem;
   font-weight: 800;
   color: var(--night-color);
-  opacity: 0.45;
+  opacity: 0.5;
   letter-spacing: -0.04em;
-  text-shadow: 0 0 40px rgba(255, 157, 66, 0.2);
+  text-shadow: 0 0 40px rgba(255, 157, 66, 0.25);
 }
 
 .night-date {
   font-size: 1.6rem;
   color: var(--night-color);
-  opacity: 0.35;
+  opacity: 0.38;
   margin-top: 8px;
 }
 
 .night-ambient-hint {
   font-size: 0.85rem;
-  color: rgba(255, 157, 66, 0.25);
+  color: rgba(255, 157, 66, 0.3);
   margin-top: 24px;
 }
 
@@ -573,15 +623,16 @@ body.night-mode-active .night-mode-overlay {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   z-index: 200;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
 }
 
 .modal-backdrop.is-open {
+  display: flex;
   opacity: 1;
   pointer-events: auto;
 }

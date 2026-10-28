@@ -34,11 +34,15 @@ const MusicManager = {
     this.playlists.forEach(pl => {
       const btn = document.createElement('button');
       btn.className = 'playlist-btn';
+      btn.type = 'button';
       btn.innerHTML = `
         <span class="btn-icon">${pl.icon || '🎵'}</span>
         <span class="btn-title">${pl.title}</span>
       `;
-      btn.addEventListener('click', () => this.launchPlaylist(pl));
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.launchPlaylist(pl);
+      });
       grid.appendChild(btn);
     });
   },
@@ -46,7 +50,10 @@ const MusicManager = {
   bindEvents() {
     const openAppBtn = document.getElementById('openAmazonMusicBtn');
     if (openAppBtn) {
-      openAppBtn.addEventListener('click', () => this.launchAmazonMusicApp());
+      openAppBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.launchAmazonMusicApp();
+      });
     }
   },
 
@@ -54,19 +61,12 @@ const MusicManager = {
    * Launch Amazon Music via Android intent or web fallback
    */
   launchAmazonMusicApp() {
-    // Try launching the native Amazon Music Android app
-    const intentUrl = 'intent://#Intent;package=com.amazon.mp3;scheme=amznmp;end;';
-    const fallbackUrl = 'https://music.amazon.co.uk';
-
-    const start = Date.now();
-    window.location.href = intentUrl;
-
-    setTimeout(() => {
-      // If the app wasn't opened and browser remains active, fallback to web
-      if (Date.now() - start < 1500) {
-        window.open(fallbackUrl, '_blank');
-      }
-    }, 1000);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    if (isAndroid) {
+      window.location.href = 'intent://#Intent;package=com.amazon.mp3;scheme=amznmp;end;';
+    } else {
+      window.open('https://music.amazon.co.uk', '_blank');
+    }
   },
 
   /**
@@ -75,24 +75,15 @@ const MusicManager = {
   launchPlaylist(pl) {
     if (!pl) return;
 
-    // Show temporary feedback toast / prompt
-    const promptBox = document.querySelector('.alexa-prompts');
-    if (promptBox) {
-      const originalHtml = promptBox.innerHTML;
-      promptBox.innerHTML = `
-        <div class="prompt-chip" style="border-left-color: var(--accent-color); background: rgba(255,255,255,0.12); color: #fff;">
-          🗣 Say: "Alexa, play ${pl.query} on Amazon Music"
-        </div>
-      `;
-      setTimeout(() => {
-        promptBox.innerHTML = originalHtml;
-      }, 7000);
-    }
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const query = pl.query || pl.title;
 
-    // Also attempt to trigger Android intent for Amazon Music search
-    const encoded = encodeURIComponent(pl.query);
-    const searchIntent = `intent://search?query=${encoded}#Intent;package=com.amazon.mp3;scheme=amznmp;end;`;
-    window.location.href = searchIntent;
+    if (isAndroid) {
+      const encoded = encodeURIComponent(query);
+      window.location.href = `intent://search?query=${encoded}#Intent;package=com.amazon.mp3;scheme=amznmp;end;`;
+    } else {
+      window.open(`https://music.amazon.co.uk/search/${encodeURIComponent(query)}`, '_blank');
+    }
   },
 
   /**
@@ -132,7 +123,7 @@ const MusicManager = {
 
       // 20Hz is sub-audible yet registers as active PCM audio stream to the Bluetooth DAC
       osc.frequency.setValueAtTime(20, this.audioContext.currentTime);
-      gain.gain.setValueAtTime(0.001, this.audioContext.currentTime); // Inaudible volume
+      gain.gain.setValueAtTime(0.001, this.audioContext.currentTime);
 
       osc.connect(gain);
       gain.connect(this.audioContext.destination);
@@ -140,7 +131,6 @@ const MusicManager = {
       osc.start();
       osc.stop(this.audioContext.currentTime + 0.3);
     } catch (e) {
-      // AudioContext might require user interaction first
       console.debug('Keep-alive pulse waiting for initial touch.');
     }
   }
