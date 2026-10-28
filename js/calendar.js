@@ -1,7 +1,8 @@
 /**
- * Apple Family Calendar Engine for Grace's Smart Display
- * - Loads and parses Family.ics / family.json (shared to gracecavill@icloud.com)
+ * Apple Calendar Engine for Grace's Smart Display
+ * - Loads and parses Family & Grace calendars (from data/family.json)
  * - Identifies Today's and Upcoming events
+ * - Shows distinct badges & colors for Family vs Grace events
  * - Formats dates, times, and recurrence
  * - Voice integrated with Alexa
  */
@@ -17,7 +18,7 @@ const CalendarManager = {
 
   async loadCalendar() {
     try {
-      // 1. Try loading pre-parsed family.json with cache buster
+      // 1. Try loading combined family.json with cache buster
       const response = await fetch('data/family.json?t=' + Date.now());
       if (response.ok) {
         this.events = await response.json();
@@ -29,21 +30,32 @@ const CalendarManager = {
     }
 
     try {
-      // 2. Fallback to family.ics with cache buster
-      const icsRes = await fetch('data/family.ics?t=' + Date.now());
-      if (icsRes.ok) {
-        const icsText = await icsRes.text();
-        this.parseICS(icsText);
-        this.processEvents();
+      // 2. Fallback to raw ICS files if JSON fetch fails
+      this.events = [];
+      const famRes = await fetch('data/family.ics?t=' + Date.now());
+      if (famRes.ok) {
+        const icsText = await famRes.text();
+        this.parseICS(icsText, 'Family', '#FF9500', true);
       }
+      try {
+        const graceRes = await fetch('data/grace.ics?t=' + Date.now());
+        if (graceRes.ok) {
+          const graceText = await graceRes.text();
+          this.parseICS(graceText, 'Grace', '#83D754', false);
+        }
+      } catch (e) {}
+
+      this.processEvents();
     } catch (err) {
       console.warn('Could not load calendar data:', err);
     }
   },
 
-  parseICS(icsText) {
+  parseICS(icsText, calName = 'Family', calColor = '#FF9500', reset = true) {
     const rawEvents = icsText.split('BEGIN:VEVENT');
-    this.events = [];
+    if (reset) {
+      this.events = [];
+    }
 
     for (let i = 1; i < rawEvents.length; i++) {
       const block = rawEvents[i];
@@ -59,7 +71,9 @@ const CalendarManager = {
           start: startMatch[1].trim(),
           end: endMatch ? endMatch[1].trim() : '',
           rrule: rruleMatch ? rruleMatch[1].trim() : '',
-          location: locMatch ? locMatch[1].trim() : ''
+          location: locMatch ? locMatch[1].trim() : '',
+          calendar: calName,
+          color: calColor
         });
       }
     }
@@ -80,6 +94,20 @@ const CalendarManager = {
       const parsedStart = this.parseDateString(ev.start);
       if (!parsedStart) return;
 
+      const calName = ev.calendar || 'Family';
+      const calColor = ev.color || (calName.toLowerCase() === 'grace' ? '#83D754' : '#FF9500');
+
+      // Check UNTIL date if recurring
+      if (ev.rrule && ev.rrule.includes('UNTIL=')) {
+        const untilMatch = ev.rrule.match(/UNTIL=(\d{8}(?:T\d{6}Z?)?)/);
+        if (untilMatch) {
+          const untilDate = this.parseDateString(untilMatch[1]);
+          if (untilDate && untilDate < startOfToday) {
+            return; // Expired recurring event
+          }
+        }
+      }
+
       // Handle YEARLY recurrence (e.g. Birthdays like Angi, Bob, Melob)
       if (ev.rrule && ev.rrule.includes('FREQ=YEARLY')) {
         const evThisYear = new Date(currentYear, parsedStart.getMonth(), parsedStart.getDate(), parsedStart.getHours(), parsedStart.getMinutes());
@@ -88,8 +116,25 @@ const CalendarManager = {
             title: ev.title,
             date: evThisYear,
             isAllDay: !ev.start.includes('T'),
-            location: ev.location
+            location: ev.location,
+            calendar: calName,
+            color: calColor
           });
+        }
+      } else if (ev.rrule && ev.rrule.includes('FREQ=WEEKLY')) {
+        let iter = new Date(parsedStart);
+        while (iter < endWindow) {
+          if (iter >= startOfToday) {
+            processed.push({
+              title: ev.title,
+              date: new Date(iter),
+              isAllDay: !ev.start.includes('T'),
+              location: ev.location,
+              calendar: calName,
+              color: calColor
+            });
+          }
+          iter = new Date(iter.getTime() + 7 * 24 * 60 * 60 * 1000);
         }
       } else {
         // Direct event
@@ -98,7 +143,9 @@ const CalendarManager = {
             title: ev.title,
             date: parsedStart,
             isAllDay: !ev.start.includes('T'),
-            location: ev.location
+            location: ev.location,
+            calendar: calName,
+            color: calColor
           });
         }
       }
@@ -111,14 +158,14 @@ const CalendarManager = {
     const unique = [];
     const seen = new Set();
     processed.forEach(item => {
-      const key = `${item.title}_${item.date.toDateString()}`;
+      const key = `${item.calendar}_${item.title}_${item.date.toDateString()}`;
       if (!seen.has(key)) {
         seen.add(key);
         unique.push(item);
       }
     });
 
-    this.upcomingEvents = unique.slice(0, 25); // Show up to 25 upcoming events
+    this.upcomingEvents = unique.slice(0, 30); // Show up to 30 upcoming events
     this.renderCalendar();
   },
 
@@ -147,7 +194,7 @@ const CalendarManager = {
       list.innerHTML = `
         <div class="no-events-msg">
           <span>✨</span>
-          <span>No upcoming family events scheduled this week</span>
+          <span>No upcoming events scheduled this month</span>
         </div>
       `;
       return;
@@ -162,6 +209,9 @@ const CalendarManager = {
     this.upcomingEvents.forEach(item => {
       const row = document.createElement('div');
       row.className = 'calendar-event-item';
+      if (item.color) {
+        row.style.borderLeftColor = item.color;
+      }
 
       let dateBadge = '';
       let badgeClass = 'badge-upcoming';
@@ -181,13 +231,18 @@ const CalendarManager = {
         timeStr = item.date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
       }
 
+      const calTagClass = item.calendar && item.calendar.toLowerCase() === 'grace' ? 'tag-grace' : 'tag-family';
+
       row.innerHTML = `
         <div class="event-date-col">
           <span class="event-badge ${badgeClass}">${dateBadge}</span>
           <span class="event-time">${timeStr}</span>
         </div>
         <div class="event-info-col">
-          <div class="event-title">${item.title}</div>
+          <div class="event-title-row">
+            <span class="event-title">${item.title}</span>
+            <span class="event-cal-tag ${calTagClass}">${item.calendar || 'Family'}</span>
+          </div>
           ${item.location ? `<div class="event-location">📍 ${item.location}</div>` : ''}
         </div>
       `;
@@ -197,10 +252,10 @@ const CalendarManager = {
 
   getUpcomingSummary() {
     if (this.upcomingEvents.length === 0) {
-      return "There are no family events scheduled for the next few days.";
+      return "There are no events scheduled for the next few days.";
     }
     const first = this.upcomingEvents[0];
     const dateStr = first.date.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
-    return `Your next family event is ${first.title} on ${dateStr}.`;
+    return `Your next event is ${first.title} on ${dateStr}.`;
   }
 };
