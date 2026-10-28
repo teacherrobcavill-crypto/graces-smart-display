@@ -220,9 +220,17 @@ html, body {
   z-index: 10;
   flex: 1;
   display: grid;
-  grid-template-columns: 1.15fr 1fr;
-  gap: 24px;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 20px;
   height: calc(100% - 72px);
+}
+
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  overflow: hidden;
 }
 
 /* Glassmorphism Cards */
@@ -233,27 +241,28 @@ html, body {
   -webkit-backdrop-filter: var(--blur-glass);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
-  padding: 28px;
+  padding: 22px;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
 }
 
-/* Left Column: Clock & Alexa */
+/* Left Column: Clock */
 .clock-card {
-  justify-content: space-between;
+  flex: 0 0 auto;
+  padding: 16px 22px;
 }
 
 .time-container {
   display: flex;
   align-items: baseline;
-  gap: 12px;
+  gap: 10px;
 }
 
 .clock-display {
   font-family: var(--font-display);
-  font-size: 6.8rem;
+  font-size: 4.6rem;
   font-weight: 800;
   line-height: 0.95;
   letter-spacing: -0.04em;
@@ -261,17 +270,157 @@ html, body {
 }
 
 .clock-period {
-  font-size: 2.2rem;
+  font-size: 1.6rem;
   font-weight: 600;
   color: var(--accent-color);
   text-transform: uppercase;
 }
 
 .date-display {
-  font-size: 1.45rem;
+  font-size: 1.15rem;
   font-weight: 500;
   color: var(--text-secondary);
-  margin-top: 8px;
+  margin-top: 4px;
+}
+
+/* Apple Family Calendar Card */
+.calendar-card {
+  flex: 1;
+  min-height: 0;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  border-top: 3px solid #FF9500;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.calendar-title-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.apple-cal-icon {
+  font-size: 1.1rem;
+}
+
+.calendar-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.calendar-account {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.calendar-badge-live {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #FF9500;
+  background: rgba(255, 149, 0, 0.15);
+  border: 1px solid rgba(255, 149, 0, 0.35);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.calendar-events-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 4px;
+}
+
+.calendar-loading {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 20px 0;
+}
+
+.no-events-msg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  padding: 20px 0;
+}
+
+.calendar-event-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid #FF9500;
+  transition: background 0.2s ease;
+}
+
+.calendar-event-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.event-date-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 68px;
+}
+
+.event-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.badge-today {
+  color: #FF9500;
+  text-shadow: 0 0 10px rgba(255, 149, 0, 0.5);
+}
+
+.badge-tomorrow {
+  color: #ffb340;
+}
+
+.badge-upcoming {
+  color: var(--text-secondary);
+}
+
+.event-time {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.event-info-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.event-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-location {
+  font-size: 0.72rem;
+  color: var(--text-muted);
 }
 
 /* Alexa Companion Box */
@@ -466,10 +615,13 @@ html, body {
   color: var(--text-primary);
 }
 
-/* Music & Audio Hub Card */
-.music-card {
+/* Amazon Music Player Card (Echo Show Layout) */
+.amazon-music-player-card {
   flex: 1;
-  padding: 22px 26px;
+  min-height: 0;
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
   justify-content: space-between;
 }
 
@@ -477,7 +629,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 
 .amazon-music-badge {
@@ -493,77 +645,209 @@ html, body {
   color: var(--text-muted);
 }
 
-.audio-live-indicator {
+.equalizer-wrap {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
-  color: var(--amazon-music-color);
-  background: rgba(0, 202, 255, 0.1);
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
+  align-items: flex-end;
+  gap: 3px;
+  height: 18px;
 }
 
-.pulse-dot {
-  width: 8px;
-  height: 8px;
-  background-color: #00CAFF;
-  border-radius: 50%;
-  animation: pulse-ring 2s infinite ease-in-out;
+.equalizer-bar {
+  width: 3.5px;
+  height: 6px;
+  background: var(--amazon-music-color);
+  border-radius: 2px;
+  transition: height 0.2s ease;
 }
 
-.open-app-btn {
+.equalizer-bar.animating.bar-1 { animation: eq-anim 0.7s infinite alternate ease-in-out; }
+.equalizer-bar.animating.bar-2 { animation: eq-anim 1.0s infinite alternate ease-in-out 0.2s; }
+.equalizer-bar.animating.bar-3 { animation: eq-anim 0.6s infinite alternate ease-in-out 0.4s; }
+.equalizer-bar.animating.bar-4 { animation: eq-anim 0.9s infinite alternate ease-in-out 0.1s; }
+
+@keyframes eq-anim {
+  0% { height: 4px; }
+  100% { height: 18px; }
+}
+
+/* Hero Artwork & Meta */
+.amazon-player-hero {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: rgba(0, 202, 255, 0.15);
-  border: 1px solid rgba(0, 202, 255, 0.35);
-  color: var(--amazon-music-color);
-  font-weight: 600;
-  font-size: 0.85rem;
-  border-radius: var(--radius-full);
+  gap: 22px;
+  margin: 6px 0;
+}
+
+.artwork-container {
+  position: relative;
+  width: 135px;
+  height: 135px;
+  flex-shrink: 0;
+}
+
+.artwork-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55), 0 0 1px 1px rgba(255, 255, 255, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.artwork-ambient-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(0, 202, 255, 0.35) 0%, transparent 70%);
+  filter: blur(25px);
+  z-index: -1;
+  border-radius: 16px;
+}
+
+.track-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.track-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.track-title {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.02em;
+}
+
+.heart-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.35);
   cursor: pointer;
+  transition: transform 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+
+.heart-btn:hover {
+  transform: scale(1.15);
+  color: #ff3b30;
+}
+
+.heart-btn.liked {
+  color: #ff3b30;
+}
+
+.track-artist {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--amazon-music-color);
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-album {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Scrubber */
+.player-scrubber-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 6px 0;
+}
+
+.time-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 32px;
+}
+
+.scrubber-bar-container {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.scrubber-fill {
+  height: 100%;
+  background: var(--amazon-music-color);
+  border-radius: 3px;
+  transition: width 0.3s linear;
+  box-shadow: 0 0 10px rgba(0, 202, 255, 0.6);
+}
+
+/* Amazon Controls */
+.amazon-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 4px;
+}
+
+.control-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s ease;
 }
 
-.open-app-btn:hover, .open-app-btn:active {
-  background: rgba(0, 202, 255, 0.28);
-  transform: scale(1.04);
+.control-btn:hover {
+  color: #ffffff;
+  transform: scale(1.15);
 }
 
-/* Playlist Grid */
-.playlist-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+.control-btn.active {
+  color: var(--amazon-music-color);
 }
 
-.playlist-btn {
+.play-pause-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--amazon-music-color);
+  color: #0d0a1a;
+  border: none;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
-  font-size: 0.95rem;
-  font-weight: 600;
+  justify-content: center;
   cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 202, 255, 0.45);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  text-align: left;
 }
 
-.playlist-btn:hover, .playlist-btn:active {
-  background: var(--card-hover);
-  border-color: var(--accent-color);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-}
-
-.playlist-btn .btn-icon {
-  font-size: 1.4rem;
+.play-pause-circle:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 25px rgba(0, 202, 255, 0.65);
 }
 
 /* ============================================================
@@ -653,69 +937,6 @@ body.alexa-active .echo-voice-hud {
   font-size: 1.15rem;
   font-weight: 600;
   color: #ffffff;
-}
-
-/* In-Screen Audio Player Bar */
-.now-playing-bar {
-  display: none;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(0, 202, 255, 0.1);
-  border: 1px solid rgba(0, 202, 255, 0.3);
-  border-radius: var(--radius-md);
-  padding: 12px 18px;
-  margin-top: 14px;
-}
-
-.now-playing-bar.is-active {
-  display: flex;
-}
-
-.now-playing-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.now-playing-icon {
-  font-size: 1.5rem;
-  animation: pulse-ring 2s infinite ease-in-out;
-}
-
-.now-playing-title {
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: #ffffff;
-}
-
-.now-playing-subtitle {
-  font-size: 0.78rem;
-  color: var(--amazon-music-color);
-}
-
-.now-playing-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.playback-btn {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #fff;
-  border-radius: var(--radius-full);
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.playback-btn:hover {
-  background: var(--amazon-music-color);
-  color: #000;
 }
 
 /* ============================================================

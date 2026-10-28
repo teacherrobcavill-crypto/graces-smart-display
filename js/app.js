@@ -22,7 +22,12 @@ document.addEventListener('DOMContentLoaded', () => {
     locationName: config.locationName
   });
 
-  // 5. Initialize Music & JBL Boombox Hub
+  // 5. Initialize Apple Family Calendar (gracecavill@icloud.com)
+  if (typeof CalendarManager !== 'undefined') {
+    CalendarManager.init();
+  }
+
+  // 6. Initialize Amazon Music & JBL Boombox Player
   MusicManager.init({
     playlists: config.playlists,
     keepAliveEnabled: config.keepAliveEnabled

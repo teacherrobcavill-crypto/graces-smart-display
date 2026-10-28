@@ -58,13 +58,31 @@
 
     <!-- Main 16:10 Dashboard Grid -->
     <main class="main-grid">
-      <!-- Left Column: Clock, Date, Alexa Prompts -->
-      <section class="grid-card clock-card">
-        <div class="time-container">
-          <div class="clock-display" id="clockDisplay">12:00</div>
-          <div class="clock-period" id="clockPeriod">AM</div>
-        </div>
-        <div class="date-display" id="dateDisplay">Wednesday, 28 October</div>
+      <!-- Left Column: Clock, Family Calendar, Alexa Voice -->
+      <div class="left-column">
+        <!-- Compact Ambient Clock Card -->
+        <section class="grid-card clock-card">
+          <div class="time-container">
+            <div class="clock-display" id="clockDisplay">12:00</div>
+            <div class="clock-period" id="clockPeriod">AM</div>
+          </div>
+          <div class="date-display" id="dateDisplay">Wednesday, 28 October</div>
+        </section>
+
+        <!-- Apple Family Calendar Card -->
+        <section class="grid-card calendar-card" id="calendarCard">
+          <div class="calendar-header">
+            <div class="calendar-title-wrap">
+              <span class="apple-cal-icon">🗓️</span>
+              <span class="calendar-title">Family Calendar</span>
+              <span class="calendar-account">gracecavill@icloud.com</span>
+            </div>
+            <span class="calendar-badge-live">Live</span>
+          </div>
+          <div class="calendar-events-list" id="calendarEventsList">
+            <div class="calendar-loading">Loading family schedule...</div>
+          </div>
+        </section>
 
         <!-- Alexa Voice Assistant Companion Card -->
         <div class="alexa-companion">
@@ -79,15 +97,15 @@
           </button>
           
           <div class="alexa-prompts" id="alexaPrompts">
-            <button type="button" class="prompt-chip" data-query="Top Pop Hits">🎵 "Alexa, play pop hits"</button>
+            <button type="button" class="prompt-chip" data-query="Taylor Swift">🎵 "Alexa, play Taylor Swift"</button>
             <button type="button" class="prompt-chip" data-action="skip">⏭️ "Alexa, skip track"</button>
+            <button type="button" class="prompt-chip" data-action="calendar">🗓️ "Alexa, what's on the calendar?"</button>
             <button type="button" class="prompt-chip" data-query="Bedtime Sleep Sounds">💤 "Alexa, bedtime sleep sounds"</button>
-            <button type="button" class="prompt-chip" data-action="weather">☀️ "Alexa, what's the weather today?"</button>
           </div>
         </div>
-      </section>
+      </div>
 
-      <!-- Right Column: Weather & Music Hub -->
+      <!-- Right Column: Weather & Full Amazon Music Player -->
       <div class="right-column">
         <!-- Weather Card -->
         <section class="grid-card weather-card" id="weatherCard">
@@ -127,55 +145,78 @@
           </div>
         </section>
 
-        <!-- Music & Audio Hub Card -->
-        <section class="grid-card music-card" id="musicCard">
+        <!-- Authentic Amazon Music Player (Echo Show Layout) -->
+        <section class="grid-card music-card amazon-music-player-card" id="musicCard">
           <div class="music-header">
             <div class="music-title-wrap">
-              <span class="amazon-music-badge">Music & Audio</span>
-              <span class="music-subtitle">JBL Boombox Player</span>
+              <span class="amazon-music-badge">Amazon Music</span>
+              <span class="music-subtitle">JBL Boombox · <span id="amzCategoryBadge">Top Pop Hits</span></span>
             </div>
-            <div class="audio-live-indicator" id="audioLiveIndicator">
-              <span class="pulse-dot"></span>
-              <span>Stereo</span>
+            <div class="equalizer-wrap" title="Audio Streaming">
+              <span class="equalizer-bar bar-1"></span>
+              <span class="equalizer-bar bar-2"></span>
+              <span class="equalizer-bar bar-3"></span>
+              <span class="equalizer-bar bar-4"></span>
             </div>
           </div>
 
-          <!-- Quick Tap Music Playlists / Categories for Grace -->
-          <div class="playlist-grid" id="playlistGrid">
-            <!-- Rendered dynamically by music.js -->
-          </div>
+          <!-- Hero Album Art & Song Details -->
+          <div class="amazon-player-hero">
+            <div class="artwork-container">
+              <img id="amzArtworkImg" src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&q=80" alt="Album Cover" class="artwork-img">
+              <div class="artwork-ambient-glow" id="amzArtworkGlow"></div>
+            </div>
 
-          <!-- In-Screen Now Playing Bar (Never leaves page) -->
-          <div class="now-playing-bar" id="nowPlayingBar">
-            <div class="now-playing-info">
-              <span class="now-playing-icon" id="nowPlayingIcon">🎵</span>
-              <div>
-                <div class="now-playing-title" id="nowPlayingTitle">Top Pop Hits</div>
-                <div class="now-playing-subtitle" id="nowPlayingSubtitle">Playing on JBL Boombox</div>
+            <div class="track-meta">
+              <div class="track-title-row">
+                <h2 class="track-title" id="amzTrackTitle">Cruel Summer</h2>
+                <button type="button" class="heart-btn" id="amzHeartBtn" title="Like Song">
+                  <svg viewBox="0 0 24 24" width="22" height="22">
+                    <path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  </svg>
+                </button>
               </div>
+              <div class="track-artist" id="amzTrackArtist">Taylor Swift</div>
+              <div class="track-album" id="amzTrackAlbum">Lover · Top Pop Hits</div>
             </div>
-            <div class="now-playing-controls">
-              <button type="button" class="playback-btn" id="prevAudioBtn" title="Previous Track">
-                <svg viewBox="0 0 24 24" width="18" height="18">
-                  <path fill="currentColor" d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
-                </svg>
-              </button>
-              <button type="button" class="playback-btn" id="playPauseAudioBtn" title="Play / Pause">
-                <svg viewBox="0 0 24 24" width="18" height="18" id="playPauseIcon">
-                  <path fill="currentColor" d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                </svg>
-              </button>
-              <button type="button" class="playback-btn" id="skipAudioBtn" title="Skip to Next Track">
-                <svg viewBox="0 0 24 24" width="18" height="18">
-                  <path fill="currentColor" d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
-                </svg>
-              </button>
-              <button type="button" class="playback-btn stop-btn" id="stopAudioBtn" title="Stop">
-                <svg viewBox="0 0 24 24" width="16" height="16">
-                  <rect x="6" y="6" width="12" height="12" fill="currentColor"/>
-                </svg>
-              </button>
+          </div>
+
+          <!-- Interactive Progress Scrubber -->
+          <div class="player-scrubber-row">
+            <span class="time-label" id="amzElapsed">0:00</span>
+            <div class="scrubber-bar-container" id="amzProgressBarContainer">
+              <div class="scrubber-fill" id="amzProgressFill" style="width: 0%;"></div>
             </div>
+            <span class="time-label" id="amzTotal">2:58</span>
+          </div>
+
+          <!-- Amazon Music Playback Controls -->
+          <div class="amazon-controls-row">
+            <button type="button" class="control-btn" id="amzShuffleBtn" title="Shuffle">
+              <svg viewBox="0 0 24 24" width="20" height="20">
+                <path fill="currentColor" d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/>
+              </svg>
+            </button>
+            <button type="button" class="control-btn" id="amzPrevBtn" title="Previous Track">
+              <svg viewBox="0 0 24 24" width="24" height="24">
+                <path fill="currentColor" d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+              </svg>
+            </button>
+            <button type="button" class="play-pause-circle" id="amzPlayPauseBtn" title="Play / Pause">
+              <svg viewBox="0 0 24 24" width="28" height="28" id="amzPlayPauseIcon">
+                <path fill="currentColor" d="M8 5v14l11-7z"/>
+              </svg>
+            </button>
+            <button type="button" class="control-btn" id="amzSkipBtn" title="Skip to Next Track">
+              <svg viewBox="0 0 24 24" width="24" height="24">
+                <path fill="currentColor" d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+              </svg>
+            </button>
+            <button type="button" class="control-btn" id="amzRepeatBtn" title="Repeat Track">
+              <svg viewBox="0 0 24 24" width="20" height="20">
+                <path fill="currentColor" d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
+              </svg>
+            </button>
           </div>
         </section>
       </div>
@@ -275,6 +316,7 @@
   <!-- JavaScript Modules -->
   <script src="js/clock.js"></script>
   <script src="js/weather.js"></script>
+  <script src="js/calendar.js"></script>
   <script src="js/music.js"></script>
   <script src="js/alexa.js"></script>
   <script src="js/settings.js"></script>

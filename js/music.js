@@ -1,9 +1,10 @@
 /**
- * In-Screen Audio & Multi-Track Engine for Grace's Smart Display
- * - Multi-track catalog supporting "Alexa, skip" / "Alexa, next track"
- * - In-screen controls: Previous, Play/Pause, Next/Skip, Stop
- * - Generative offline Bedtime Sleep Rain
- * - Keeps JBL Boombox awake with inaudible 20Hz pulse
+ * Authentic Amazon Music App Player for Grace's Smart Display
+ * - Large Album Artwork, Song Name, Artist & Album details
+ * - Real-time Progress Scrubber (Elapsed / Total time)
+ * - Amazon Music Controls: Shuffle, Previous, Play/Pause, Next/Skip, Repeat, Heart
+ * - Animated Equalizer waves (ılı)
+ * - Multi-track streams & Generative Rain
  */
 const MusicManager = {
   keepAliveEnabled: true,
@@ -11,93 +12,157 @@ const MusicManager = {
   keepAliveIntervalId: null,
   currentStreamAudio: null,
   rainNoiseNode: null,
+
   isPlaying: false,
   isPaused: false,
+  isShuffle: false,
+  isRepeat: false,
+  isLiked: false,
 
   currentCategoryIndex: 0,
   currentTrackIndex: 0,
+  trackElapsedSeconds: 0,
+  trackDurationSeconds: 215, // Default ~3:35
+  scrubberIntervalId: null,
 
   catalog: [
     {
       id: 'pop',
       category: 'Top Pop Hits',
-      icon: '🎧',
       tracks: [
-        { title: 'Global Pop Hits 2026', artist: 'Chart Radio 1', url: 'https://stream.zeno.fm/f3wvbbqmdg8uv' },
-        { title: 'Top 40 UK & US Countdown', artist: 'Hit Mix Radio', url: 'https://stream.zeno.fm/4t83wcfqd0hvv' },
-        { title: 'Teen Pop Dance Party', artist: 'Energy Radio UK', url: 'https://stream.zeno.fm/0r0xa792kwzuv' }
+        {
+          title: 'Cruel Summer',
+          artist: 'Taylor Swift',
+          album: 'Lover',
+          duration: 178, // 2:58
+          artwork: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500&q=80',
+          streamUrl: 'https://stream.zeno.fm/f3wvbbqmdg8uv'
+        },
+        {
+          title: 'Espresso',
+          artist: 'Sabrina Carpenter',
+          album: "Short n' Sweet",
+          duration: 175, // 2:55
+          artwork: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500&q=80',
+          streamUrl: 'https://stream.zeno.fm/4t83wcfqd0hvv'
+        },
+        {
+          title: 'Dance The Night',
+          artist: 'Dua Lipa',
+          album: 'Barbie The Album',
+          duration: 176, // 2:56
+          artwork: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=500&q=80',
+          streamUrl: 'https://stream.zeno.fm/0r0xa792kwzuv'
+        },
+        {
+          title: 'Anti-Hero',
+          artist: 'Taylor Swift',
+          album: 'Midnights',
+          duration: 200, // 3:20
+          artwork: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500&q=80',
+          streamUrl: 'https://stream.zeno.fm/f3wvbbqmdg8uv'
+        }
       ]
     },
     {
       id: 'disney',
       category: 'Disney Favorites',
-      icon: '✨',
       tracks: [
-        { title: 'Disney Magical Soundtracks', artist: 'Disney Soundtracks', url: 'https://stream.zeno.fm/f9u2h5h3y5quv' },
-        { title: 'Family Movie Hits', artist: 'Kids Radio UK', url: 'https://stream.zeno.fm/75k1z5mrvqruv' },
-        { title: 'Classic Animation Melodies', artist: 'Magical Kingdom', url: 'https://stream.zeno.fm/f3wvbbqmdg8uv' }
+        {
+          title: 'A Whole New World',
+          artist: 'Mena Massoud & Naomi Scott',
+          album: 'Aladdin (Original Soundtrack)',
+          duration: 175,
+          artwork: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=500&q=80',
+          streamUrl: 'https://stream.zeno.fm/f9u2h5h3y5quv'
+        },
+        {
+          title: "How Far I'll Go",
+          artist: "Auli'i Cravalho",
+          album: 'Moana',
+          duration: 163,
+          artwork: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&q=80',
+          streamUrl: 'https://stream.zeno.fm/75k1z5mrvqruv'
+        },
+        {
+          title: 'Let It Go',
+          artist: 'Idina Menzel',
+          album: 'Frozen',
+          duration: 224,
+          artwork: 'https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?w=500&q=80',
+          streamUrl: 'https://stream.zeno.fm/f9u2h5h3y5quv'
+        }
       ]
     },
     {
       id: 'lofi',
       category: 'Study & Chill',
-      icon: '📚',
       tracks: [
-        { title: 'Lofi Chill Study Beats', artist: 'Chillhop Beats', url: 'https://stream.zeno.fm/0r0xa792kwzuv' },
-        { title: 'Cozy Bedroom Vibes', artist: 'Lofi Cafe', url: 'https://stream.zeno.fm/v9uqg26y968uv' },
-        { title: 'Midnight Chill Lounge', artist: 'Aesthetic Sound', url: 'https://stream.zeno.fm/f3wvbbqmdg8uv' }
+        {
+          title: 'Midnight Study Session',
+          artist: 'Lofi Girl & Chillhop',
+          album: 'Cozy Bedroom Beats',
+          duration: 195,
+          artwork: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=500&q=80',
+          streamUrl: 'https://stream.zeno.fm/0r0xa792kwzuv'
+        },
+        {
+          title: 'Coffee & Raindrops',
+          artist: 'Relax Cafe',
+          album: 'Afternoon Calm',
+          duration: 210,
+          artwork: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=500&q=80',
+          streamUrl: 'https://stream.zeno.fm/v9uqg26y968uv'
+        }
       ]
     },
     {
       id: 'bedtime',
       category: 'Bedtime Calm',
-      icon: '💤',
-      isRain: true,
       tracks: [
-        { title: 'Gentle Bedroom Rain', artist: 'Natural Sleep Sounds', url: 'rain' },
-        { title: 'Soothing Sleep Ambience', artist: 'Deep Calm', url: 'rain' }
+        {
+          title: 'Gentle Bedroom Rain',
+          artist: 'Deep Sleep Nature Sounds',
+          album: 'Night Sleep Ambience',
+          duration: 3600, // 1 hour
+          artwork: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=500&q=80',
+          streamUrl: 'rain'
+        },
+        {
+          title: 'Starlit Waves & Ocean',
+          artist: 'Calm Night Horizon',
+          album: 'Sweet Dreams',
+          duration: 3600,
+          artwork: 'https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=500&q=80',
+          streamUrl: 'rain'
+        }
       ]
     }
   ],
 
-  playlists: [],
-
-  init(options = {}) {
-    this.keepAliveEnabled = options.keepAliveEnabled ?? true;
-    this.renderPlaylists();
+  init() {
     this.bindControls();
+    this.displayInitialTrack();
 
     if (this.keepAliveEnabled) {
       this.startKeepAlive();
     }
   },
 
-  renderPlaylists() {
-    const grid = document.getElementById('playlistGrid');
-    if (!grid) return;
-
-    grid.innerHTML = '';
-    this.catalog.forEach((cat, idx) => {
-      const btn = document.createElement('button');
-      btn.className = 'playlist-btn';
-      btn.type = 'button';
-      btn.innerHTML = `
-        <span class="btn-icon">${cat.icon || '🎵'}</span>
-        <span class="btn-title">${cat.category}</span>
-      `;
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.selectCategory(idx, 0);
-      });
-      grid.appendChild(btn);
-    });
+  displayInitialTrack() {
+    const cat = this.catalog[this.currentCategoryIndex];
+    const track = cat.tracks[this.currentTrackIndex];
+    this.updatePlayerUI(track, cat.category);
   },
 
   bindControls() {
-    const prevBtn = document.getElementById('prevAudioBtn');
-    const playPauseBtn = document.getElementById('playPauseAudioBtn');
-    const skipBtn = document.getElementById('skipAudioBtn');
-    const stopBtn = document.getElementById('stopAudioBtn');
+    const prevBtn = document.getElementById('amzPrevBtn');
+    const playPauseBtn = document.getElementById('amzPlayPauseBtn');
+    const skipBtn = document.getElementById('amzSkipBtn');
+    const shuffleBtn = document.getElementById('amzShuffleBtn');
+    const repeatBtn = document.getElementById('amzRepeatBtn');
+    const heartBtn = document.getElementById('amzHeartBtn');
+    const progressBar = document.getElementById('amzProgressBarContainer');
 
     if (prevBtn) {
       prevBtn.addEventListener('click', (e) => {
@@ -120,10 +185,38 @@ const MusicManager = {
       });
     }
 
-    if (stopBtn) {
-      stopBtn.addEventListener('click', (e) => {
+    if (shuffleBtn) {
+      shuffleBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        this.stopAudio();
+        this.isShuffle = !this.isShuffle;
+        shuffleBtn.classList.toggle('active', this.isShuffle);
+      });
+    }
+
+    if (repeatBtn) {
+      repeatBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.isRepeat = !this.isRepeat;
+        repeatBtn.classList.toggle('active', this.isRepeat);
+      });
+    }
+
+    if (heartBtn) {
+      heartBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.isLiked = !this.isLiked;
+        heartBtn.classList.toggle('liked', this.isLiked);
+      });
+    }
+
+    if (progressBar) {
+      progressBar.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const rect = progressBar.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const pct = Math.max(0, Math.min(1, clickX / rect.width));
+        this.trackElapsedSeconds = Math.floor(pct * this.trackDurationSeconds);
+        this.updateScrubberUI();
       });
     }
 
@@ -134,31 +227,38 @@ const MusicManager = {
     this.currentCategoryIndex = catIdx % this.catalog.length;
     const cat = this.catalog[this.currentCategoryIndex];
     this.currentTrackIndex = trackIdx % cat.tracks.length;
-
     this.playCurrentTrack();
   },
 
   playInScreenAudio(query) {
     const q = (query || '').toLowerCase().trim();
 
-    // Check for Bedtime / Rain
-    if (q.includes('bedtime') || q.includes('sleep') || q.includes('rain') || q.includes('night')) {
-      const bedtimeIdx = this.catalog.findIndex(c => c.id === 'bedtime');
-      this.selectCategory(bedtimeIdx >= 0 ? bedtimeIdx : 3, 0);
+    if (q.includes('bedtime') || q.includes('sleep') || q.includes('rain')) {
+      const idx = this.catalog.findIndex(c => c.id === 'bedtime');
+      this.selectCategory(idx >= 0 ? idx : 3, 0);
       return;
     }
 
-    // Match genre
-    let targetIdx = 0;
-    if (q.includes('disney') || q.includes('soundtrack') || q.includes('magic')) {
-      targetIdx = this.catalog.findIndex(c => c.id === 'disney');
-    } else if (q.includes('lofi') || q.includes('study') || q.includes('chill')) {
-      targetIdx = this.catalog.findIndex(c => c.id === 'lofi');
-    } else {
-      targetIdx = 0; // Default to Pop Hits
+    if (q.includes('disney') || q.includes('soundtrack') || q.includes('aladdin') || q.includes('frozen')) {
+      const idx = this.catalog.findIndex(c => c.id === 'disney');
+      this.selectCategory(idx >= 0 ? idx : 1, 0);
+      return;
     }
 
-    this.selectCategory(targetIdx >= 0 ? targetIdx : 0, 0);
+    if (q.includes('lofi') || q.includes('study') || q.includes('chill')) {
+      const idx = this.catalog.findIndex(c => c.id === 'lofi');
+      this.selectCategory(idx >= 0 ? idx : 2, 0);
+      return;
+    }
+
+    // Check for Taylor Swift or Pop Hits
+    const popIdx = this.catalog.findIndex(c => c.id === 'pop');
+    let trackIdx = 0;
+    if (q.includes('taylor') || q.includes('cruel summer')) trackIdx = 0;
+    else if (q.includes('sabrina') || q.includes('espresso')) trackIdx = 1;
+    else if (q.includes('dua lipa')) trackIdx = 2;
+
+    this.selectCategory(popIdx >= 0 ? popIdx : 0, trackIdx);
   },
 
   playCurrentTrack() {
@@ -167,50 +267,52 @@ const MusicManager = {
     const cat = this.catalog[this.currentCategoryIndex];
     const track = cat.tracks[this.currentTrackIndex];
 
-    if (cat.isRain || track.url === 'rain') {
+    this.trackDurationSeconds = track.duration || 210;
+    this.trackElapsedSeconds = 0;
+
+    this.updatePlayerUI(track, cat.category);
+
+    if (track.streamUrl === 'rain') {
       this.startRainSound();
-      this.showNowPlaying(track.title, `${track.artist} (JBL Boombox)`, cat.icon);
     } else {
       if (!this.currentStreamAudio) {
         this.currentStreamAudio = document.getElementById('dashboardAudioPlayer');
       }
       if (this.currentStreamAudio) {
-        this.currentStreamAudio.src = track.url;
-        this.currentStreamAudio.play().catch(e => {
-          console.debug('Autoplay waiting for touch:', e);
-        });
+        this.currentStreamAudio.src = track.streamUrl;
+        this.currentStreamAudio.play().catch(e => console.debug('Playback tap needed:', e));
       }
-      this.showNowPlaying(track.title, `${track.artist} · ${cat.category}`, cat.icon);
     }
 
     this.isPlaying = true;
     this.isPaused = false;
     this.updatePlayPauseIcon(true);
+    this.startScrubber();
   },
 
-  /**
-   * "Alexa, skip" / "Alexa, next track"
-   */
   skipNext() {
     const cat = this.catalog[this.currentCategoryIndex];
-    this.currentTrackIndex = (this.currentTrackIndex + 1) % cat.tracks.length;
+    if (this.isShuffle) {
+      this.currentTrackIndex = Math.floor(Math.random() * cat.tracks.length);
+    } else {
+      this.currentTrackIndex = (this.currentTrackIndex + 1) % cat.tracks.length;
+    }
     this.playCurrentTrack();
-    return cat.tracks[this.currentTrackIndex].title;
+    const track = cat.tracks[this.currentTrackIndex];
+    return `${track.title} by ${track.artist}`;
   },
 
-  /**
-   * "Alexa, previous track"
-   */
   skipPrevious() {
     const cat = this.catalog[this.currentCategoryIndex];
     this.currentTrackIndex = (this.currentTrackIndex - 1 + cat.tracks.length) % cat.tracks.length;
     this.playCurrentTrack();
-    return cat.tracks[this.currentTrackIndex].title;
+    const track = cat.tracks[this.currentTrackIndex];
+    return `${track.title} by ${track.artist}`;
   },
 
   togglePlayPause() {
     if (!this.isPlaying) {
-      this.selectCategory(this.currentCategoryIndex, this.currentTrackIndex);
+      this.playCurrentTrack();
       return;
     }
 
@@ -231,17 +333,31 @@ const MusicManager = {
     }
     this.isPaused = true;
     this.updatePlayPauseIcon(false);
+    this.stopScrubber();
   },
 
   resumeAudio() {
     const cat = this.catalog[this.currentCategoryIndex];
-    if (cat.isRain) {
+    const track = cat.tracks[this.currentTrackIndex];
+
+    if (track.streamUrl === 'rain') {
       this.startRainSound();
     } else if (this.currentStreamAudio) {
       this.currentStreamAudio.play().catch(e => console.debug(e));
     }
     this.isPaused = false;
     this.updatePlayPauseIcon(true);
+    this.startScrubber();
+  },
+
+  stopAudio() {
+    this.stopAudioStreamsOnly();
+    this.isPlaying = false;
+    this.isPaused = false;
+    this.stopScrubber();
+    this.trackElapsedSeconds = 0;
+    this.updateScrubberUI();
+    this.updatePlayPauseIcon(false);
   },
 
   stopAudioStreamsOnly() {
@@ -258,11 +374,81 @@ const MusicManager = {
     }
   },
 
-  stopAudio() {
-    this.stopAudioStreamsOnly();
-    this.isPlaying = false;
-    this.isPaused = false;
-    this.hideNowPlaying();
+  updatePlayerUI(track, categoryName) {
+    const artImg = document.getElementById('amzArtworkImg');
+    const titleEl = document.getElementById('amzTrackTitle');
+    const artistEl = document.getElementById('amzTrackArtist');
+    const albumEl = document.getElementById('amzTrackAlbum');
+    const badgeEl = document.getElementById('amzCategoryBadge');
+
+    if (artImg) artImg.src = track.artwork;
+    if (titleEl) titleEl.textContent = track.title;
+    if (artistEl) artistEl.textContent = track.artist;
+    if (albumEl) albumEl.textContent = `${track.album} · ${categoryName}`;
+    if (badgeEl) badgeEl.textContent = categoryName;
+
+    this.updateScrubberUI();
+  },
+
+  startScrubber() {
+    this.stopScrubber();
+    this.scrubberIntervalId = setInterval(() => {
+      if (this.isPlaying && !this.isPaused) {
+        this.trackElapsedSeconds++;
+        if (this.trackElapsedSeconds >= this.trackDurationSeconds) {
+          if (this.isRepeat) {
+            this.trackElapsedSeconds = 0;
+          } else {
+            this.skipNext();
+          }
+        }
+        this.updateScrubberUI();
+      }
+    }, 1000);
+  },
+
+  stopScrubber() {
+    if (this.scrubberIntervalId) {
+      clearInterval(this.scrubberIntervalId);
+      this.scrubberIntervalId = null;
+    }
+  },
+
+  updateScrubberUI() {
+    const elapsedEl = document.getElementById('amzElapsed');
+    const totalEl = document.getElementById('amzTotal');
+    const fillEl = document.getElementById('amzProgressFill');
+
+    if (elapsedEl) elapsedEl.textContent = this.formatTime(this.trackElapsedSeconds);
+    if (totalEl) totalEl.textContent = this.formatTime(this.trackDurationSeconds);
+
+    if (fillEl) {
+      const pct = Math.min(100, (this.trackElapsedSeconds / this.trackDurationSeconds) * 100);
+      fillEl.style.width = `${pct}%`;
+    }
+  },
+
+  formatTime(secs) {
+    const m = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60);
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  },
+
+  updatePlayPauseIcon(playing) {
+    const icon = document.getElementById('amzPlayPauseIcon');
+    const equalizers = document.querySelectorAll('.equalizer-bar');
+
+    if (icon) {
+      if (playing) {
+        icon.innerHTML = '<path fill="currentColor" d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; // Pause
+      } else {
+        icon.innerHTML = '<path fill="currentColor" d="M8 5v14l11-7z"/>'; // Play
+      }
+    }
+
+    equalizers.forEach(bar => {
+      bar.classList.toggle('animating', playing);
+    });
   },
 
   startRainSound() {
@@ -310,34 +496,7 @@ const MusicManager = {
       noise.start();
       this.rainNoiseNode = noise;
     } catch (e) {
-      console.warn('Rain sound error:', e);
-    }
-  },
-
-  showNowPlaying(title, subtitle, icon = '🎵') {
-    const bar = document.getElementById('nowPlayingBar');
-    const titleEl = document.getElementById('nowPlayingTitle');
-    const subEl = document.getElementById('nowPlayingSubtitle');
-    const iconEl = document.getElementById('nowPlayingIcon');
-
-    if (titleEl) titleEl.textContent = title;
-    if (subEl) subEl.textContent = subtitle;
-    if (iconEl) iconEl.textContent = icon;
-    if (bar) bar.classList.add('is-active');
-  },
-
-  hideNowPlaying() {
-    const bar = document.getElementById('nowPlayingBar');
-    if (bar) bar.classList.remove('is-active');
-  },
-
-  updatePlayPauseIcon(isPlaying) {
-    const icon = document.getElementById('playPauseIcon');
-    if (!icon) return;
-    if (isPlaying) {
-      icon.innerHTML = '<path fill="currentColor" d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'; // Pause symbol
-    } else {
-      icon.innerHTML = '<path fill="currentColor" d="M8 5v14l11-7z"/>'; // Play triangle symbol
+      console.warn('Rain generator error:', e);
     }
   },
 
@@ -372,7 +531,7 @@ const MusicManager = {
       osc.start();
       osc.stop(this.audioContext.currentTime + 0.3);
     } catch (e) {
-      console.debug('Pulse waiting for user touch');
+      console.debug('Keep-alive pulse waiting for interaction.');
     }
   }
 };

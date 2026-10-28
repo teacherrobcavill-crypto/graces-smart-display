@@ -281,7 +281,15 @@ const AlexaManager = {
       return;
     }
 
-    // 5. WEATHER
+    // 5. CALENDAR & FAMILY SCHEDULE
+    if (cmd.includes('calendar') || cmd.includes('events') || cmd.includes('schedule') || cmd.includes('plans')) {
+      const calSpeech = typeof CalendarManager !== 'undefined' ? CalendarManager.getUpcomingSummary() : "No events found.";
+      this.speak(calSpeech);
+      setTimeout(() => this.deactivateEchoGlow(), 4500);
+      return;
+    }
+
+    // 6. WEATHER
     if (cmd.includes('weather') || cmd.includes('temperature') || cmd.includes('rain')) {
       WeatherManager.fetchWeather();
       const condition = document.getElementById('weatherCondition')?.textContent || 'Fair';
