@@ -200,28 +200,50 @@ html, body {
   color: var(--accent-color);
 }
 
-/* Immersive layout mode (for split-screen maximizing) */
+/* Immersive layout mode (for fullscreen maximizing) */
 body.immersive-mode .dashboard-container {
-  padding: 12px 16px;
+  padding: 12px 18px;
 }
 
 body.immersive-mode .top-bar {
   margin-bottom: 8px;
 }
 
-body.immersive-mode .split-stack {
-  gap: 10px;
+body.immersive-mode .dashboard-grid {
+  gap: 14px;
 }
 
-/* Split-Screen Stack (Left Column) */
-.split-stack {
+/* ============================================================
+   2-Column Landscape Full-Screen Dashboard Grid
+   Left: Clock (Majority) & Weather | Right: Full-Height Calendar
+   ============================================================ */
+.dashboard-grid {
   position: relative;
   z-index: 10;
   flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  height: calc(100% - 62px);
+  overflow: hidden;
+}
+
+/* Left Column: Clock (majority) & Bramley Weather */
+.col-left {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  height: calc(100% - 62px);
+  gap: 16px;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Right Column: Full-Height Family Calendar (Takes up half the screen) */
+.col-right {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -236,45 +258,54 @@ body.immersive-mode .split-stack {
   position: relative;
 }
 
-/* 1. Clock Card */
+/* 1. Clock Card (Takes up majority of left column) */
 .clock-card {
-  flex: 0 0 auto;
-  padding: 16px 22px;
+  flex: 1.6;
+  min-height: 0;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .time-container {
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 12px;
 }
 
 .clock-display {
   font-family: var(--font-display);
-  font-size: 4.8rem;
+  font-size: 5.6rem;
   font-weight: 800;
   line-height: 0.95;
   letter-spacing: -0.04em;
-  text-shadow: 0 6px 28px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
 }
 
 .clock-period {
-  font-size: 1.6rem;
-  font-weight: 600;
+  font-size: 1.8rem;
+  font-weight: 700;
   color: var(--accent-color);
   text-transform: uppercase;
 }
 
 .date-display {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   font-weight: 500;
   color: var(--text-secondary);
-  margin-top: 4px;
+  margin-top: 8px;
+  letter-spacing: -0.01em;
 }
 
 /* 2. Weather Card (Bramley & Tadley) */
 .weather-card {
-  flex: 0 0 auto;
-  padding: 14px 20px;
+  flex: 1;
+  min-height: 0;
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .weather-header {
@@ -311,20 +342,20 @@ body.immersive-mode .split-stack {
 }
 
 .weather-icon-large {
-  font-size: 2.8rem;
+  font-size: 3rem;
   filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
 }
 
 .current-temp {
   font-family: var(--font-display);
-  font-size: 2.6rem;
+  font-size: 2.8rem;
   font-weight: 700;
   line-height: 1;
 }
 
 .weather-condition {
   display: block;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 500;
   color: var(--text-secondary);
   margin-top: 2px;
@@ -332,9 +363,9 @@ body.immersive-mode .split-stack {
 
 .weather-stats {
   display: flex;
-  gap: 16px;
+  gap: 18px;
   border-left: 1px solid var(--card-border);
-  padding-left: 16px;
+  padding-left: 18px;
 }
 
 .stat-item {
@@ -343,26 +374,27 @@ body.immersive-mode .split-stack {
 }
 
 .stat-label {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: var(--text-muted);
   text-transform: uppercase;
   margin-bottom: 2px;
 }
 
 .stat-value {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
 }
 
-/* 3. Apple Family Calendar Card (Spacious, Full Height) */
+/* 3. Apple Family Calendar Card (Spacious, Full Height, Right Column) */
 .calendar-card {
+  height: 100%;
   flex: 1;
   min-height: 0;
-  padding: 16px 20px;
+  padding: 20px 24px;
   display: flex;
   flex-direction: column;
-  border-top: 3px solid var(--apple-cal-color);
+  border-top: 3.5px solid var(--apple-cal-color);
   overflow: hidden;
 }
 
@@ -705,4 +737,27 @@ body.night-mode-active .night-mode-overlay {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   justify-content: flex-end;
+}
+
+/* Responsive Fallback for Portrait / Narrow Viewports */
+@media (max-width: 820px), (orientation: portrait) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow-y: auto;
+    gap: 16px;
+  }
+  .col-left, .col-right {
+    height: auto;
+    overflow: visible;
+  }
+  .clock-card, .weather-card {
+    flex: 0 0 auto;
+  }
+  .clock-display {
+    font-size: 4.8rem;
+  }
+  .calendar-card {
+    height: 500px;
+  }
 }

@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-theme="pastel-sunset">
-  <div id="app" class="dashboard-container split-screen-mode">
+  <div id="app" class="dashboard-container">
     <!-- Ambient Dynamic Background -->
     <div class="background-backdrop" id="bgBackdrop"></div>
     <div class="ambient-glow glow-1"></div>
@@ -49,69 +49,74 @@
       </div>
     </header>
 
-    <!-- Split-Screen Optimized Stack (Left Half of Tablet) -->
-    <main class="split-stack">
-      <!-- 1. Clock Card -->
-      <section class="grid-card clock-card">
-        <div class="time-container">
-          <div class="clock-display" id="clockDisplay">12:00</div>
-          <div class="clock-period" id="clockPeriod">AM</div>
-        </div>
-        <div class="date-display" id="dateDisplay">Wednesday, 28 October</div>
-      </section>
-
-      <!-- 2. Weather Card (Bramley & Tadley) -->
-      <section class="grid-card weather-card" id="weatherCard">
-        <div class="weather-header">
-          <div class="location-badge">
-            <svg class="pin-icon" viewBox="0 0 24 24" width="16" height="16">
-              <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/>
-            </svg>
-            <span id="weatherLocationName">Bramley, Tadley</span>
+    <!-- 2-Column Landscape Full-Screen Grid -->
+    <main class="dashboard-grid">
+      <!-- Left Column: Clock (majority) & Bramley Weather -->
+      <div class="col-left">
+        <!-- 1. Ambient Clock Card (Takes up majority of left column) -->
+        <section class="grid-card clock-card">
+          <div class="time-container">
+            <div class="clock-display" id="clockDisplay">12:00</div>
+            <div class="clock-period" id="clockPeriod">AM</div>
           </div>
-          <span class="weather-updated" id="weatherUpdated">Updated just now</span>
-        </div>
-        
-        <div class="weather-body">
-          <div class="weather-main-info">
-            <div class="weather-icon-large" id="weatherIcon">☀️</div>
-            <div class="temp-wrapper">
-              <span class="current-temp" id="currentTemp">--°</span>
-              <span class="weather-condition" id="weatherCondition">Loading weather...</span>
+          <div class="date-display" id="dateDisplay">Wednesday, 28 October</div>
+        </section>
+
+        <!-- 2. Weather Card (Bramley & Tadley) -->
+        <section class="grid-card weather-card" id="weatherCard">
+          <div class="weather-header">
+            <div class="location-badge">
+              <svg class="pin-icon" viewBox="0 0 24 24" width="16" height="16">
+                <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+              </svg>
+              <span id="weatherLocationName">Bramley, Tadley</span>
             </div>
+            <span class="weather-updated" id="weatherUpdated">Updated just now</span>
           </div>
           
-          <div class="weather-stats">
-            <div class="stat-item">
-              <span class="stat-label">High / Low</span>
-              <span class="stat-value" id="tempRange">--° / --°</span>
+          <div class="weather-body">
+            <div class="weather-main-info">
+              <div class="weather-icon-large" id="weatherIcon">☀️</div>
+              <div class="temp-wrapper">
+                <span class="current-temp" id="currentTemp">--°</span>
+                <span class="weather-condition" id="weatherCondition">Loading weather...</span>
+              </div>
             </div>
-            <div class="stat-item">
-              <span class="stat-label">Rain</span>
-              <span class="stat-value" id="rainChance">--%</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">Wind</span>
-              <span class="stat-value" id="windSpeed">-- mph</span>
+            
+            <div class="weather-stats">
+              <div class="stat-item">
+                <span class="stat-label">High / Low</span>
+                <span class="stat-value" id="tempRange">--° / --°</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Rain</span>
+                <span class="stat-value" id="rainChance">--%</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Wind</span>
+                <span class="stat-value" id="windSpeed">-- mph</span>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
-      <!-- 3. Apple Family Calendar Card (Spacious, Full Height) -->
-      <section class="grid-card calendar-card" id="calendarCard">
-        <div class="calendar-header">
-          <div class="calendar-title-wrap">
-            <span class="apple-cal-icon">🗓️</span>
-            <span class="calendar-title">Family Calendar</span>
-            <span class="calendar-account">gracecavill@icloud.com</span>
+      <!-- Right Column: Full-Height Apple Family Calendar Card (Takes up half the screen) -->
+      <div class="col-right">
+        <section class="grid-card calendar-card" id="calendarCard">
+          <div class="calendar-header">
+            <div class="calendar-title-wrap">
+              <span class="apple-cal-icon">🗓️</span>
+              <span class="calendar-title">Family Calendar</span>
+              <span class="calendar-account">gracecavill@icloud.com</span>
+            </div>
+            <span class="calendar-badge-live">Live</span>
           </div>
-          <span class="calendar-badge-live">Live</span>
-        </div>
-        <div class="calendar-events-list" id="calendarEventsList">
-          <div class="calendar-loading">Loading family schedule...</div>
-        </div>
-      </section>
+          <div class="calendar-events-list" id="calendarEventsList">
+            <div class="calendar-loading">Loading family schedule...</div>
+          </div>
+        </section>
+      </div>
     </main>
 
     <!-- Night Mode / Bedtime Screen Overlay -->
