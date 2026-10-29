@@ -30,6 +30,24 @@
   --blur-glass: blur(28px);
 }
 
+/* Theme: Baby Pink */
+[data-theme="baby-pink"] {
+  --bg-gradient: radial-gradient(circle at 12% 18%, rgba(255, 182, 193, 0.32) 0%, transparent 48%),
+                 radial-gradient(circle at 88% 82%, rgba(255, 192, 203, 0.28) 0%, transparent 48%),
+                 radial-gradient(circle at 50% 50%, rgba(255, 105, 180, 0.08) 0%, transparent 60%),
+                 linear-gradient(135deg, #1d121b 0%, #0e070c 100%);
+  --card-bg: rgba(255, 192, 203, 0.08);
+  --card-border: rgba(255, 182, 193, 0.22);
+  --card-hover: rgba(255, 182, 193, 0.16);
+  --accent-color: #ffb6c1;
+  --accent-glow: rgba(255, 182, 193, 0.45);
+  --text-secondary: rgba(255, 235, 242, 0.82);
+}
+
+[data-theme="baby-pink"] .glow-2 {
+  background: rgba(255, 182, 193, 0.2);
+}
+
 /* Theme: Cosmic Galaxy */
 [data-theme="cosmic-galaxy"] {
   --bg-gradient: radial-gradient(circle at 10% 15%, rgba(138, 43, 226, 0.28) 0%, transparent 50%),

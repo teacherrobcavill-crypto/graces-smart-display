@@ -9,7 +9,7 @@ const SettingsManager = {
     locationName: 'Bramley, Tadley',
     lat: 51.3300,
     lon: -1.0800,
-    theme: 'pastel-sunset',
+    theme: 'baby-pink',
     is24Hour: false
   },
 
@@ -20,6 +20,10 @@ const SettingsManager = {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       if (stored) {
         this.config = Object.assign({}, this.defaults, JSON.parse(stored));
+        if (this.config.theme === 'pastel-sunset') {
+          this.config.theme = 'baby-pink';
+          this.save(this.config);
+        }
       } else {
         this.config = Object.assign({}, this.defaults);
       }
