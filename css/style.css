@@ -687,6 +687,16 @@ body.night-mode-active .night-mode-overlay {
   color: #ff9d42;
 }
 
+.btn-add-event {
+  color: #83D754;
+}
+
+.btn-add-event:hover, .btn-add-event:active {
+  background: rgba(131, 215, 84, 0.2);
+  border-color: #83D754;
+  color: #83D754;
+}
+
 /* ============================================================
    Settings Modal Dialog
    ============================================================ */
@@ -831,6 +841,220 @@ body.night-mode-active .night-mode-overlay {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   justify-content: flex-end;
+}
+
+/* Modal Header Title & Badge */
+.modal-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-title-wrap h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.modal-cal-icon {
+  font-size: 1.25rem;
+}
+
+.badge-grace-cal {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #83D754;
+  background: rgba(131, 215, 84, 0.15);
+  border: 1px solid rgba(131, 215, 84, 0.35);
+  padding: 3px 9px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Date & Time Inputs */
+.form-group input[type="date"],
+.form-group input[type="time"] {
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+  color-scheme: dark;
+}
+
+.form-group input[type="date"]:focus,
+.form-group input[type="time"]:focus {
+  border-color: #83D754;
+}
+
+.date-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quick-date-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.quick-pill {
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.quick-pill:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.quick-pill.active {
+  background: rgba(131, 215, 84, 0.22);
+  border-color: #83D754;
+  color: #83D754;
+}
+
+/* Time Type Segmented Controls */
+.time-toggle-row {
+  display: flex;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.segmented-option {
+  flex: 1;
+  cursor: pointer;
+  margin: 0;
+}
+
+.segmented-option input[type="radio"] {
+  display: none;
+}
+
+.segment-btn {
+  display: block;
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.segmented-option input[type="radio"]:checked + .segment-btn {
+  background: rgba(131, 215, 84, 0.25);
+  color: #83D754;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.time-pickers-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.btn-secondary {
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  margin-right: 10px;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.btn-save-event {
+  background: #83D754 !important;
+  color: #0b1a06 !important;
+  font-weight: 700 !important;
+}
+
+.btn-save-event:hover {
+  filter: brightness(1.1);
+}
+
+.required-star {
+  color: #ff9aa2;
+}
+
+.optional-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: normal;
+}
+
+/* Event Delete Button in Calendar List */
+.event-delete-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.15rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.event-delete-btn:hover {
+  color: #ff4757;
+  background: rgba(255, 71, 87, 0.15);
+}
+
+/* Floating Toast Notification */
+.toast-notice {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(30px);
+  background: #191629;
+  border: 1px solid #83D754;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: var(--radius-full);
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 10000;
+}
+
+.toast-notice.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
 }
 
 /* Responsive Fallback for Portrait / Narrow Viewports */

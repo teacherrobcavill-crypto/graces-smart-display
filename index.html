@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="css/style.css?v=2.3">
+  <link rel="stylesheet" href="css/style.css?v=2.4">
 </head>
 <body data-theme="pastel-sunset">
   <div id="app" class="dashboard-container">
@@ -29,6 +29,12 @@
       </div>
       
       <div class="status-controls">
+        <button class="icon-btn btn-add-event" id="addEventBtn" type="button" aria-label="Make New Calendar Event" title="Make New Event (Grace's Calendar)">
+          <svg class="icon" viewBox="0 0 24 24" width="22" height="22">
+            <path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zm-8-2h2v-3h3v-2h-3v-3h-2v3H8v2h3z"/>
+          </svg>
+        </button>
+
         <button class="icon-btn" id="nightModeBtn" type="button" aria-label="Toggle Night Mode" title="Bedtime Night Mode">
           <svg class="icon" viewBox="0 0 24 24" width="22" height="22">
             <path fill="currentColor" d="M12.3 2a10 10 0 0 0-.19 20 10 10 0 0 0 8.7-5.06 1 1 0 0 0-1-1.47 8 8 0 1 1-7.5-13.47 1 1 0 0 0-.01-2z"/>
@@ -131,6 +137,80 @@
       </div>
     </div>
 
+    <!-- New Event Modal (Grace's Calendar) -->
+    <div class="modal-backdrop" id="newEventModal">
+      <div class="settings-dialog new-event-dialog">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="modal-cal-icon">🗓️</span>
+            <h2>New Event <span class="badge-grace-cal">Grace's Calendar</span></h2>
+          </div>
+          <button class="close-btn" id="closeNewEventBtn" type="button" aria-label="Close dialog">&times;</button>
+        </div>
+        
+        <form id="newEventForm" class="modal-body" onsubmit="return false;">
+          <!-- 1. What is the event? -->
+          <div class="form-group">
+            <label for="eventTitleInput">What is the event? <span class="required-star">*</span></label>
+            <input type="text" id="eventTitleInput" placeholder="e.g. Gymnastics, Cinema, Dance class..." required autocomplete="off">
+          </div>
+
+          <!-- 2. What date / day? -->
+          <div class="form-group">
+            <label for="eventDateInput">What date / day? <span class="required-star">*</span></label>
+            <div class="date-input-wrap">
+              <input type="date" id="eventDateInput" required>
+              <div class="quick-date-pills">
+                <button type="button" class="quick-pill active" data-offset="0">Today</button>
+                <button type="button" class="quick-pill" data-offset="1">Tomorrow</button>
+                <button type="button" class="quick-pill" data-day="saturday">Saturday</button>
+                <button type="button" class="quick-pill" data-day="sunday">Sunday</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Time or all day? -->
+          <div class="form-group">
+            <label>Time or all day?</label>
+            <div class="time-toggle-row">
+              <label class="segmented-option">
+                <input type="radio" name="eventTimeType" id="timeTypeAllDay" value="allday" checked>
+                <span class="segment-btn">☀️ All Day</span>
+              </label>
+              <label class="segmented-option">
+                <input type="radio" name="eventTimeType" id="timeTypeSpecific" value="specific">
+                <span class="segment-btn">⏰ Specific Time</span>
+              </label>
+            </div>
+
+            <!-- Specific Time Pickers (shown when Specific Time is selected) -->
+            <div class="time-pickers-row" id="timePickersRow" style="display: none;">
+              <div class="form-group half">
+                <label for="eventStartTimeInput">Starts</label>
+                <input type="time" id="eventStartTimeInput" value="10:00">
+              </div>
+              <div class="form-group half">
+                <label for="eventEndTimeInput">Ends (optional)</label>
+                <input type="time" id="eventEndTimeInput" value="11:00">
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Location (Optional) -->
+          <div class="form-group">
+            <label for="eventLocationInput">Where is it? <span class="optional-hint">(optional)</span></label>
+            <input type="text" id="eventLocationInput" placeholder="e.g. Basingstoke Sports Centre, School, Home..." autocomplete="off">
+          </div>
+        </form>
+
+        <div class="modal-footer">
+          <button class="btn-secondary" id="cancelNewEventBtn" type="button">Cancel</button>
+          <button class="btn-secondary" id="exportIcsBtn" type="button" title="Save and export .ics for device calendar">📥 Export .ics</button>
+          <button class="btn-primary btn-save-event" id="saveEventBtn" type="button">✨ Add to Calendar</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Settings Modal -->
     <div class="modal-backdrop" id="settingsModal">
       <div class="settings-dialog">
@@ -187,10 +267,10 @@
   </div>
 
   <!-- JavaScript Modules -->
-  <script src="js/clock.js?v=2.3"></script>
-  <script src="js/weather.js?v=2.3"></script>
-  <script src="js/calendar.js?v=2.3"></script>
-  <script src="js/settings.js?v=2.3"></script>
-  <script src="js/app.js?v=2.3"></script>
+  <script src="js/clock.js?v=2.4"></script>
+  <script src="js/weather.js?v=2.4"></script>
+  <script src="js/calendar.js?v=2.4"></script>
+  <script src="js/settings.js?v=2.4"></script>
+  <script src="js/app.js?v=2.4"></script>
 </body>
 </html>
