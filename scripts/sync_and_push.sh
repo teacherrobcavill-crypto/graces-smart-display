@@ -1,10 +1,10 @@
 #!/bin/bash
-# Continuous background auto-sync for live iCloud Family Calendar
+# Continuous background auto-sync for live iCloud Family & Grace Calendars
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 cd "$DIR"
 
-echo "Starting iCloud Calendar auto-sync daemon (every 5 minutes)..."
+echo "Starting iCloud Calendar auto-sync daemon (every 45s)..."
 
 while true; do
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] Checking iCloud Calendars..."
@@ -14,18 +14,15 @@ while true; do
   CHANGES=$(git status --porcelain data/ ipad/js/data.js)
 
   if [ -n "$CHANGES" ]; then
-    echo "Calendar changes detected! Pushing to main and ipad..."
+    echo "Calendar changes detected! Pushing live to main and ipad..."
     git add data/ ipad/js/data.js
     git commit -m "Auto-sync live iCloud Calendars (Family & Grace)"
     git push origin main
-    git checkout ipad
-    git merge main -m "Sync live calendar to ipad"
-    git push origin ipad
-    git checkout main
+    git push origin main:ipad
     echo "Sync and push complete!"
   else
     echo "Calendar is up to date."
   fi
 
-  sleep 300
+  sleep 45
 done

@@ -55,7 +55,8 @@ def parse_ics(raw_ics, cal_name="Family", cal_color="#FF9500"):
                 "rrule": "",
                 "location": "",
                 "calendar": cal_name,
-                "color": cal_color
+                "color": cal_color,
+                "exdates": []
             }
         elif line == "END:VEVENT":
             if cur and cur["title"]:
@@ -76,6 +77,13 @@ def parse_ics(raw_ics, cal_name="Family", cal_color="#FF9500"):
                     cur["end"] = line[idx+1:]
             elif line.startswith("RRULE:"):
                 cur["rrule"] = line[6:]
+            elif line.startswith("EXDATE"):
+                idx = line.find(":")
+                if idx != -1:
+                    for p in line[idx+1:].split(","):
+                        clean_p = p.strip()
+                        if clean_p:
+                            cur["exdates"].append(clean_p)
             elif line.startswith("LOCATION:"):
                 idx = line.find(":")
                 if idx != -1:

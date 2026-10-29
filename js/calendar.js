@@ -16,8 +16,29 @@ const CalendarManager = {
   init() {
     this.loadCalendar();
     this.initNewEventModal();
-    // Refresh calendar view every 5 minutes
-    setInterval(() => this.loadCalendar(), 5 * 60 * 1000);
+
+    // Auto-refresh calendar view every 30 seconds
+    setInterval(() => this.loadCalendar(), 30 * 1000);
+
+    // Instant refresh when user returns to tab / turns on screen
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        this.loadCalendar();
+      }
+    });
+    window.addEventListener('focus', () => this.loadCalendar());
+
+    // Manual Refresh button click
+    const refreshBtn = document.getElementById('calendarRefreshBtn');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        refreshBtn.classList.add('is-refreshing');
+        await this.loadCalendar();
+        setTimeout(() => refreshBtn.classList.remove('is-refreshing'), 600);
+        this.showToast('🔄 Calendar refreshed from live feed');
+      });
+    }
   },
 
   async loadCalendar() {
@@ -74,6 +95,18 @@ const CalendarManager = {
       const endMatch = block.match(/DTEND.*?:(\d{8}(?:T\d{6})?)/);
       const rruleMatch = block.match(/RRULE:(.*)/);
       const locMatch = block.match(/LOCATION:(.*)/);
+      const exdateMatches = block.match(/EXDATE.*?:(.*)/g);
+      const exdates = [];
+      if (exdateMatches) {
+        exdateMatches.forEach(m => {
+          const colonIdx = m.indexOf(':');
+          if (colonIdx !== -1) {
+            m.substring(colonIdx + 1).split(',').forEach(p => {
+              if (p.trim()) exdates.push(p.trim());
+            });
+          }
+        });
+      }
 
       if (summaryMatch && startMatch) {
         this.events.push({
@@ -83,7 +116,8 @@ const CalendarManager = {
           rrule: rruleMatch ? rruleMatch[1].trim() : '',
           location: locMatch ? locMatch[1].trim() : '',
           calendar: calName,
-          color: calColor
+          color: calColor,
+          exdates: exdates
         });
       }
     }
@@ -137,16 +171,26 @@ const CalendarManager = {
         let iter = new Date(parsedStart);
         while (iter < endWindow) {
           if (iter >= startOfToday) {
-            processed.push({
-              id: ev.id,
-              isCustom: ev.isCustom || false,
-              title: ev.title,
-              date: new Date(iter),
-              isAllDay: !ev.start.includes('T'),
-              location: ev.location,
-              calendar: calName,
-              color: calColor
-            });
+            const y = iter.getFullYear();
+            const m = String(iter.getMonth() + 1).padStart(2, '0');
+            const d = String(iter.getDate()).padStart(2, '0');
+            const iterDateStr = `${y}${m}${d}`;
+
+            // Exclude occurrences matching EXDATE
+            const isExcluded = ev.exdates && ev.exdates.some(ex => ex.startsWith(iterDateStr));
+
+            if (!isExcluded) {
+              processed.push({
+                id: ev.id,
+                isCustom: ev.isCustom || false,
+                title: ev.title,
+                date: new Date(iter),
+                isAllDay: !ev.start.includes('T'),
+                location: ev.location,
+                calendar: calName,
+                color: calColor
+              });
+            }
           }
           iter = new Date(iter.getTime() + 7 * 24 * 60 * 60 * 1000);
         }

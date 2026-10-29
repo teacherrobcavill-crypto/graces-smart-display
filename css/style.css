@@ -465,6 +465,36 @@ body.immersive-mode .dashboard-grid {
   letter-spacing: 0.05em;
 }
 
+.calendar-refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: var(--radius-full);
+  transition: all 0.2s ease;
+}
+
+.calendar-refresh-btn:hover {
+  transform: scale(1.06);
+}
+
+.calendar-refresh-btn .refresh-icon {
+  color: var(--apple-cal-color);
+  transition: transform 0.4s ease;
+}
+
+.calendar-refresh-btn.is-refreshing .refresh-icon {
+  animation: spin-refresh 0.7s linear infinite;
+}
+
+@keyframes spin-refresh {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .calendar-events-list {
   flex: 1;
   overflow-y: auto;
