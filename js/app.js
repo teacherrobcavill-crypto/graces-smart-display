@@ -83,6 +83,9 @@ document.addEventListener('DOMContentLoaded', () => {
   ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(evt => {
     document.addEventListener(evt, updateFullscreenIcon);
   });
+
+  // 9. Permanent Screen Wake Lock (Prevents Samsung Screen Saver & Screen Timeout)
+  requestScreenWakeLock();
 });
 
 /**
@@ -182,3 +185,39 @@ function updateFullscreenIcon() {
     btn.classList.remove('active');
   }
 }
+
+/**
+ * Permanent Screen Wake Lock Engine (Prevents Samsung Screen Saver / Screen Sleep)
+ */
+let wakeLockSentinel = null;
+
+async function requestScreenWakeLock() {
+  if ('wakeLock' in navigator) {
+    try {
+      wakeLockSentinel = await navigator.wakeLock.request('screen');
+      console.log('Screen Wake Lock active: keeping smart display alive');
+
+      wakeLockSentinel.addEventListener('release', () => {
+        wakeLockSentinel = null;
+      });
+    } catch (err) {
+      console.debug('Wake lock request error:', err.name, err.message);
+    }
+  }
+}
+
+// Re-request wake lock whenever page becomes visible (tab switch, wake from sleep)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    requestScreenWakeLock();
+  }
+});
+
+// Re-request on any user touch/interaction if lock was released by OS
+['touchstart', 'pointerdown', 'click'].forEach(evt => {
+  document.addEventListener(evt, () => {
+    if (!wakeLockSentinel) {
+      requestScreenWakeLock();
+    }
+  }, { passive: true });
+});
